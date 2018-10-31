@@ -1,10 +1,10 @@
 package com.dragon.fruit.service;
 
 
-import com.dragon.fruit.entity.po.fruit.ArticleInfo;
+import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
+import com.dragon.fruit.entity.vo.response.ArticleFVResponse;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @des  文章业务逻辑处理层
@@ -18,7 +18,7 @@ public interface IArticleService {
      * @param pageSize
      * @return
      */
-    public List<ArticleInfo> findArticeleByChannelID(String channelId, int pageNum, int pageSize);
+    public List<ArticleInfoEntity> findArticeleByChannelID(String channelId, int pageNum, int pageSize);
 
     /**
      * 获取制定频道下最新的文章信息（默认取十条，若没有最新数据，随机推荐十条）
@@ -28,12 +28,20 @@ public interface IArticleService {
      * @param pageSize
      * @return
      */
-    List<ArticleInfo> findNewArticeleByChannelID(String channelGuid,String IP, int pageNum, int pageSize);
+    List<ArticleInfoEntity> findNewArticeleByChannelID(String channelGuid, String IP, int pageNum, int pageSize);
 
     /**
      * 根据文章的ID 查找文章的详细信息
      * @param titleId
      * @return
      */
-    ArticleInfo findArticle(String titleId);
+    ArticleInfoEntity findArticle(String titleId);
+
+
+    /***
+     * 获取首页信息
+     * @param userGuid 用户的ID
+     * @return
+     */
+    ArticleFVResponse getHomeInfo(String userGuid);
 }

@@ -1,7 +1,7 @@
 package com.dragon.fruit.dao.fruit;
 
 
-import com.dragon.fruit.entity.po.fruit.ArticleInfo;
+import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -53,7 +53,7 @@ public interface ArticleDao {
             "ua.ChannelGuid= #{channelId} " +
             "ORDER BY " +
             "a.CreateDate DESC")
-    public List<ArticleInfo> findArticeleByChannelID(String channelId);
+    public List<ArticleInfoEntity> findArticeleByChannelID(String channelId);
 
 
 
@@ -88,7 +88,7 @@ public interface ArticleDao {
             "a.Simgs as simgs," +
             "a.Oprator as oprator" +
             " from ArticleInfo AS a WHERE TitleID= #{titleID}")
-    ArticleInfo findArticleByTitleId(String titleID);
+    ArticleInfoEntity findArticleByTitleId(String titleID);
 
     /**
      * 根据时间查找频道下的信息
@@ -129,7 +129,7 @@ public interface ArticleDao {
             "ua.ChannelGuid= #{channelGuid}  AND a.CreateDate > #{createDate} " +
             "ORDER BY " +
             "a.CreateDate DESC")
-    List<ArticleInfo> findArticleInfoByChannelAndTime(@Param("channelGuid") String channelGuid,@Param("createDate") Date createDate);
+    List<ArticleInfoEntity> findArticleInfoByChannelAndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
 
     /**
      * 随机获取当前频道的10条记录
@@ -168,7 +168,7 @@ public interface ArticleDao {
             "ua.ChannelGuid= #{channelGuid} " +
             "ORDER BY " +
             "NEWID()")
-    List<ArticleInfo> findArticleInfoByNewID(String channelGuid);
+    List<ArticleInfoEntity> findArticleInfoByNewID(String channelGuid);
 
     /**
      * 获取频道下最新的10条数据
@@ -207,7 +207,7 @@ public interface ArticleDao {
             "ua.ChannelGuid= #{channelGuid} " +
             "ORDER BY " +
             "a.CreateDate DESC")
-    List<ArticleInfo> findArticleInfoTop10(String channelGuid);
+    List<ArticleInfoEntity> findArticleInfoTop10(String channelGuid);
 
     /**
      * 获取推荐频道的文章Top100
@@ -220,7 +220,7 @@ public interface ArticleDao {
             "LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
             "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  " +
             "order by a.CreateDate DESC ,a.Recommend DESC")
-    List<ArticleInfo> queryTJArticleTOP100(String channelGuid);
+    List<ArticleInfoEntity> queryTJArticleTOP100(String channelGuid);
 
     /**
      * 倒序获取推荐文章
@@ -233,7 +233,7 @@ public interface ArticleDao {
             "LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
             "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  " +
             "order by a.CreateDate DESC ,a.Recommend DESC")
-    List<ArticleInfo> queryTJArticle(String channelId);
+    List<ArticleInfoEntity> queryTJArticle(String channelId);
 
     /**
      * 倒序获取推荐文章且时间小于特定时间
@@ -246,7 +246,7 @@ public interface ArticleDao {
             " LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
             " WHERE c.ChannelGuid=#{channelId}  and a.HasImage = 1 and a.CreateDate < #{createDate} " +
             " order by a.CreateDate DESC ,a.Recommend DESC")
-    List<ArticleInfo> queryTJArticleByCreateDate(@Param("channelId") String channelId, @Param("createDate") Date createDate);
+    List<ArticleInfoEntity> queryTJArticleByCreateDate(@Param("channelId") String channelId, @Param("createDate") Date createDate);
 
     /**
      * 获取特定频道下且时间小于特定时间的文章
@@ -286,7 +286,7 @@ public interface ArticleDao {
             " ua.ChannelGuid= #{channelId}  and a.CreateDate<#{createDate} " +
             " ORDER BY " +
             " a.CreateDate DESC")
-    List<ArticleInfo> findArticeleByChannelIDAndCreateDate(@Param("channelId") String channelId, @Param("createDate") Date createDate);
+    List<ArticleInfoEntity> findArticeleByChannelIDAndCreateDate(@Param("channelId") String channelId, @Param("createDate") Date createDate);
 
 
     @Select("select TOP 100 a.*,p.UserId  from ArticleInfo a  " +
@@ -295,5 +295,5 @@ public interface ArticleDao {
             "LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
             "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  and a.CreateDate>#{createDate}" +
             "order by a.CreateDate DESC ,a.Recommend DESC")
-    List<ArticleInfo> queryTJArticleTOP100AndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
+    List<ArticleInfoEntity> queryTJArticleTOP100AndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
 }

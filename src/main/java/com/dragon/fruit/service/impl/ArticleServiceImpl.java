@@ -1,16 +1,16 @@
 package com.dragon.fruit.service.impl;
 
-import com.dragon.fruit.dao.fruit.ArticleDao;
-import com.dragon.fruit.dao.fruit.ChannelDao;
-import com.dragon.fruit.dao.fruit.ChannelExposureDao;
-import com.dragon.fruit.entity.po.fruit.ArticleInfo;
-import com.dragon.fruit.entity.po.fruit.Channel;
-import com.dragon.fruit.entity.po.fruit.ChannelExposureLog;
+import com.dragon.fruit.common.constant.ErrorConstant;
+import com.dragon.fruit.common.constant.UserConstant;
+import com.dragon.fruit.dao.fruit.*;
+import com.dragon.fruit.entity.po.fruit.*;
+import com.dragon.fruit.entity.vo.response.ArticleFVResponse;
 import com.dragon.fruit.service.IArticleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -29,6 +29,10 @@ public class ArticleServiceImpl implements IArticleService {
     ChannelExposureDao channelExposureDao;
     @Autowired
     ChannelDao channleDao;
+    @Autowired
+    UserDao userDao;
+    @Autowired
+    APPDao appDao;
 
 
     /**
@@ -39,77 +43,49 @@ public class ArticleServiceImpl implements IArticleService {
      * @return
      */
     @Override
-    public List<ArticleInfo> findArticeleByChannelID(String channelId, int pageNum, int pageSize) {
-        List<ArticleInfo> articleInfoList = new ArrayList<>();
+    public List<ArticleInfoEntity> findArticeleByChannelID(String channelId, int pageNum, int pageSize) {
+        List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
 
         //根据IP和频道ID 找到最近推荐的一篇文章ID。 取10条按时间排列
-        List<ChannelExposureLog> channelExposureLogList = channelExposureDao.findChannelExposureByChangIDAndIP(channelId,"0:0:0:0:0:0:0:1");
+        List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelId,"0:0:0:0:0:0:0:1");
         //当前频道是否是推荐频道
-        Channel channel = channleDao.queryChannelInfoByChannelGuid(channelId);
-        PageHelper.startPage(pageNum, 80);
-        if(channelExposureLogList.size()<=0){
-            if(channel.getIsRecommand()){
+        ChannelEntity channelEntity = channleDao.queryChannelInfoByChannelGuid(channelId);
+        PageHelper.startPage(pageNum, 100);
+        if(channelExposureLogEntityList.size()<=0){
+            if(channelEntity.getRecommand()){
                 //获取推荐文章信息，按时间倒序
-                articleInfoList = articleDao.queryTJArticle(channelId);
+                articleInfoEntityList = articleDao.queryTJArticle(channelId);
             }else{
                 //获取特定频道下的数据
-                articleInfoList = articleDao.findArticeleByChannelID(channelId);
+                articleInfoEntityList = articleDao.findArticeleByChannelID(channelId);
             }
         }else{
-            ChannelExposureLog channelExposureLog = channelExposureLogList.get(0);
+            ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
             //根据文章ID找到文章的时间
-            ArticleInfo articleInfo = articleDao.findArticleByTitleId(channelExposureLog.getTitleID());
+            ArticleInfoEntity articleInfoEntity = articleDao.findArticleByTitleId(channelExposureLogEntity.getTitleID());
 
-            if(null!=channel.getIsRecommand()&&channel.getIsRecommand()){
+            if(null!= channelEntity.getRecommand()&& channelEntity.getRecommand()){
 
-                articleInfoList = articleDao.queryTJArticleByCreateDate(channelId,null==articleInfo?new Date():articleInfo.getCreateDate());
+                articleInfoEntityList = articleDao.queryTJArticleByCreateDate(channelId,null== articleInfoEntity ?new Date(): articleInfoEntity.getCreateDate());
             }else{
-                articleInfoList = articleDao.findArticeleByChannelIDAndCreateDate(channelId,null==articleInfo?new Date():articleInfo.getCreateDate());
+                articleInfoEntityList = articleDao.findArticeleByChannelIDAndCreateDate(channelId,null== articleInfoEntity ?new Date(): articleInfoEntity.getCreateDate());
             }
 
         }
 
-        if(null==articleInfoList||articleInfoList.size()<=0){
+        if(null== articleInfoEntityList || articleInfoEntityList.size()<=0){
             return  new ArrayList<>();
         }
         //int newpageNum = pageNum/6 +1;
 
-        //按时间倒序取出当前频道的80篇文章
+        //按时间倒序取出当前频道的100篇文章
 
+        PageInfo result = new PageInfo(articleInfoEntityList);
+        List<ArticleInfoEntity> resulist = result.getList();
+        List<ArticleInfoEntity> articleInfoEntityListResult = new ArrayList<>();
+        articleInfoEntityListResult = this.handleArticleList(resulist);
 
-        PageInfo result = new PageInfo(articleInfoList);
-        List resulist = result.getList();
-        int i = 0;
-        List<ArticleInfo> articleInfoListResult = new ArrayList<>();
-        String name = "xxxx";
-        int j = 1;
-
-        //循环80篇文章，找到对应的期刊名，若为不同期刊，放到返回的集合中若为同一期刊集合中不能超过三本
-        Set<String> resultSet = new HashSet<>();
-        for (Object articleInfo: resulist) {
-
-            ArticleInfo articleInfo1 = (ArticleInfo) articleInfo;
-            if(!name.equalsIgnoreCase(articleInfo1.getMagazineName())){
-                j=1;
-                name = articleInfo1.getMagazineName();
-                i++;
-            }else{
-                if(!resultSet.contains(articleInfo1.getTitleID())){
-                    if(j<=3){
-                        articleInfoListResult.add(articleInfo1);
-                        j++;
-                        resultSet.add(articleInfo1.getTitleID());
-                    }
-
-                }
-            }
-            if(articleInfoListResult.size()>=10){
-                break;
-            }
-        }
-
-        System.out.println("一共几种杂志"+i);
-        return articleInfoListResult;
+        return articleInfoEntityListResult;
     }
 
     /**
@@ -121,72 +97,50 @@ public class ArticleServiceImpl implements IArticleService {
      * @return
      */
     @Override
-    public List<ArticleInfo> findNewArticeleByChannelID(String channelGuid, String IP, int pageNum, int pageSize) {
-        List<ArticleInfo> articleInfoList = new ArrayList<>();
+    public List<ArticleInfoEntity> findNewArticeleByChannelID(String channelGuid, String IP, int pageNum, int pageSize) {
+        List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
         //当前频道是否是推荐频道
-        Channel channel = channleDao.queryChannelInfoByChannelGuid(channelGuid);
-        if(channel.getIsRecommand()){
-            List<ArticleInfo> articleInfoListTop100 = new ArrayList<>();
+        ChannelEntity channelEntity = channleDao.queryChannelInfoByChannelGuid(channelGuid);
+        if(channelEntity.getRecommand()){
+            List<ArticleInfoEntity> articleInfoEntityListTop100 = new ArrayList<>();
             //根据IP和频道ID 找到最近推荐的一篇文章ID。 取10条按时间排列
-            List<ChannelExposureLog> channelExposureLogList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
-            if(channelExposureLogList.size()>0){
-                ChannelExposureLog channelExposureLog = channelExposureLogList.get(0);
+            List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
+            if(channelExposureLogEntityList.size()>0){
+                ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
                 //根据文章ID找到文章的时间
-                ArticleInfo articleInfo = articleDao.findArticleByTitleId(channelExposureLog.getTitleID());
-                articleInfoListTop100 = articleDao.queryTJArticleTOP100AndTime(channelGuid,articleInfo.getCreateDate());
+                ArticleInfoEntity articleInfoEntity = articleDao.findArticleByTitleId(channelExposureLogEntity.getTitleID());
+                articleInfoEntityListTop100 = articleDao.queryTJArticleTOP100AndTime(channelGuid, articleInfoEntity.getCreateDate());
             }
 
             //按时间倒序获取推荐频道的文章
-             articleInfoListTop100 = articleDao.queryTJArticleTOP100(channelGuid);
+             articleInfoEntityListTop100 = articleDao.queryTJArticleTOP100(channelGuid);
+             articleInfoEntityList = this.handleArticleList(articleInfoEntityListTop100);
 
-            int i = 0;
-            String name = "xxxx";
-            int j = 1;
-            Set<String> resultSet = new HashSet<>();
-            for (ArticleInfo articleInfo:articleInfoListTop100) {
-                if(!name.equalsIgnoreCase(articleInfo.getMagazineName())){
-                    j=1;
-                    name = articleInfo.getMagazineName();
-                    i++;
-                }else{
-                    if(!resultSet.contains(articleInfo.getTitleID())){
-                        if(j<=3){
-                            articleInfoList.add(articleInfo);
-                            j++;
-                            resultSet.add(articleInfo.getTitleID());
-                        }
-
-                    }
-                }
-                if(articleInfoList.size()>=10){
-                    break;
-                }
-            }
 
         }else{
 
             //根据IP和频道ID 找到最近推荐的一篇文章ID。 取10条按时间排列
-            List<ChannelExposureLog> channelExposureLogList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,"0:0:0:0:0:0:0:1");
+            List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,"0:0:0:0:0:0:0:1");
 
-            if(channelExposureLogList.size()<=0){
+            if(channelExposureLogEntityList.size()<=0){
                 //初次进来取最新的10条记录
-                articleInfoList = articleDao.findArticleInfoTop10(channelGuid);
-                return  articleInfoList;
+                articleInfoEntityList = articleDao.findArticleInfoTop10(channelGuid);
+                return articleInfoEntityList;
             }
-            ChannelExposureLog channelExposureLog = channelExposureLogList.get(channelExposureLogList.size()-1);
+            ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(channelExposureLogEntityList.size()-1);
             //根据文章ID找到文章的时间
-            ArticleInfo articleInfo = articleDao.findArticleByTitleId(channelExposureLog.getTitleID());
+            ArticleInfoEntity articleInfoEntity = articleDao.findArticleByTitleId(channelExposureLogEntity.getTitleID());
             //查找当前频道下有没有大于上次推荐时间的文章
-            articleInfoList = articleDao.findArticleInfoByChannelAndTime(channelGuid,articleInfo.getCreateDate());
+            articleInfoEntityList = articleDao.findArticleInfoByChannelAndTime(channelGuid, articleInfoEntity.getCreateDate());
             //若没有，走老方法随机推荐10条
-            if(articleInfoList.size()<=0){
-                articleInfoList = articleDao.findArticleInfoByNewID(channelGuid);
+            if(articleInfoEntityList.size()<=0){
+                articleInfoEntityList = articleDao.findArticleInfoByNewID(channelGuid);
             }
             //若有取10条返回
         }
 
 
-        return articleInfoList;
+        return articleInfoEntityList;
     }
 
     /**
@@ -195,8 +149,99 @@ public class ArticleServiceImpl implements IArticleService {
      * @return
      */
     @Override
-    public ArticleInfo findArticle(String titleId) {
+    public ArticleInfoEntity findArticle(String titleId) {
         return articleDao.findArticleByTitleId(titleId);
+    }
+
+    /**
+     * 获取首页信息
+     * @param userGuid 用户的ID
+     * @return
+     */
+    @Override
+    public ArticleFVResponse getHomeInfo(String userGuid) {
+        ArticleFVResponse articleFVResponse = new ArticleFVResponse();
+        //获取用户信息
+       if(StringUtils.isEmpty(userGuid)) {
+           //如果用户为空给一个系统默认的用户ID
+           userGuid = UserConstant.DEFAULT_USER;
+       }
+        UserInfoEntity userInfoEntity = userDao.queryUserInfoByID(userGuid);
+        articleFVResponse.setUserInfoEntity(userInfoEntity);
+
+
+        //获取频道信息
+             //1. 获取用户的APP信息
+        List<APPInfoEntity> appInfoEntityList = appDao.queryAppInfoByUserID(userGuid);
+        if(appInfoEntityList.isEmpty()||appInfoEntityList.size()==0){
+            articleFVResponse.setRetCode(ErrorConstant.NOAPPCODE);
+            return  articleFVResponse;
+        }
+        APPInfoEntity appInfoEntity = appInfoEntityList.get(0);
+            //2. 默认取第一个APP 根据APPID 找到频道信息列表
+        List<ChannelEntity> channelEntityList = channleDao.queryChannelByAppID(appInfoEntity.getAppGuid());
+        if(channelEntityList.isEmpty()||channelEntityList.size()==0){
+            articleFVResponse.setRetCode(ErrorConstant.NOCHANNEL_CODE);
+            articleFVResponse.setRetMsg(ErrorConstant.NOCHANNEL_MESSAGE);
+            return  articleFVResponse;
+        }
+        articleFVResponse.setChannelEntityList(channelEntityList);
+
+
+        //找到推荐频道的GuID
+        String channelGuID = null;
+        for (ChannelEntity channelEntity:channelEntityList) {
+            if(null!=channelEntity.getRecommand()&& channelEntity.getRecommand()){
+                channelGuID = channelEntity.getChannelGuid();
+            }
+        }
+        long artStart = System.currentTimeMillis();
+        //获取推荐文章信息 (按时间倒序获取10条数据)
+        //PageHelper.startPage(1, 100);
+        List<ArticleInfoEntity> articleInfoEntityList = articleDao.queryTJArticleTOP100(channelGuID);
+        //PageInfo pageResultList = new PageInfo(articleInfoEntityList);
+        //List<ArticleInfoEntity> pageList = pageResultList.getList();
+        List<ArticleInfoEntity> resultArticleList = this.handleArticleList(articleInfoEntityList);
+        articleFVResponse.setArticleInfoEntityList(resultArticleList);
+
+
+        //TODO 记录推荐的文章到文章推荐记录表(异步)
+        return articleFVResponse;
+    }
+
+    /**
+     * 处理文章数据，同刊占比不能超过30%
+     * @param pageResultList
+     * @return
+     */
+    private List<ArticleInfoEntity> handleArticleList(List<ArticleInfoEntity> pageResultList) {
+        List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
+
+
+        int i = 0;
+        String name = "xxxx";
+        int j = 1;
+        Set<String> resultSet = new HashSet<>();
+        for (ArticleInfoEntity articleInfoEntity : pageResultList) {
+            if(!name.equalsIgnoreCase(articleInfoEntity.getMagazineName())){
+                j = 1;
+                name = articleInfoEntity.getMagazineName();
+                i++;
+            }else{
+                if(!resultSet.contains(articleInfoEntity.getTitleID())){
+                    if(j <= 3){
+                        articleInfoEntityList.add(articleInfoEntity);
+                        j++;
+                        resultSet.add(articleInfoEntity.getTitleID());
+                    }
+
+                }
+            }
+            if(articleInfoEntityList.size()>=10){
+                break;
+            }
+        }
+        return articleInfoEntityList;
     }
 
     public static void main(String[] args) {

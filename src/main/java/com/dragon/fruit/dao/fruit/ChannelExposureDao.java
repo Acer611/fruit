@@ -1,7 +1,7 @@
 package com.dragon.fruit.dao.fruit;
 
 
-import com.dragon.fruit.entity.po.fruit.ChannelExposureLog;
+import com.dragon.fruit.entity.po.fruit.ChannelExposureLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -21,5 +21,5 @@ public interface ChannelExposureDao {
      * @return
      */
     @Select("SELECT top 10 ID,ChannelGuid,TitleID,CreateDate,IP  FROM ChannelExposureLog WHERE ChannelGuid= #{channelGuid} AND IP='0:0:0:0:0:0:0:1' ORDER BY CreateDate DESC")
-    List<ChannelExposureLog> findChannelExposureByChangIDAndIP(@Param("channelGuid")String channelGuid, @Param("IP")String IP);
+    List<ChannelExposureLogEntity> findChannelExposureByChangIDAndIP(@Param("channelGuid")String channelGuid, @Param("IP")String IP);
 }
