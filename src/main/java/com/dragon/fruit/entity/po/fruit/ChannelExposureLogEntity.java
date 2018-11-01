@@ -2,7 +2,7 @@ package com.dragon.fruit.entity.po.fruit;
 
 import io.swagger.annotations.ApiModelProperty;
 
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * 推荐记录表

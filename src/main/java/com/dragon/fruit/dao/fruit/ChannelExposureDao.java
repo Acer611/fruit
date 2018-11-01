@@ -22,4 +22,10 @@ public interface ChannelExposureDao {
      */
     @Select("SELECT top 10 ID,ChannelGuid,TitleID,CreateDate,IP  FROM ChannelExposureLog WHERE ChannelGuid= #{channelGuid} AND IP='0:0:0:0:0:0:0:1' ORDER BY CreateDate DESC")
     List<ChannelExposureLogEntity> findChannelExposureByChangIDAndIP(@Param("channelGuid")String channelGuid, @Param("IP")String IP);
+
+    /**
+     * 批量插入推荐文章到文章推荐记录表
+     * @param channelExposureLogEntityList
+     */
+    void insertBatchTXArticle(List<ChannelExposureLogEntity> channelExposureLogEntityList);
 }

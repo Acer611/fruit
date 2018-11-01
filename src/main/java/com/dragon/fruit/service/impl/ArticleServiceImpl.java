@@ -8,6 +8,7 @@ import com.dragon.fruit.entity.po.fruit.*;
 import com.dragon.fruit.entity.vo.response.ArticleListResponse;
 import com.dragon.fruit.entity.vo.response.HomeResponse;
 import com.dragon.fruit.service.IArticleService;
+import com.dragon.fruit.service.IRecordService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class ArticleServiceImpl implements IArticleService {
     UserDao userDao;
     @Autowired
     APPDao appDao;
+    @Autowired
+    IRecordService recordService;
 
 
 
@@ -62,21 +65,21 @@ public class ArticleServiceImpl implements IArticleService {
         //获取频道信息
         //1. 获取用户的APP信息
         List<APPInfoEntity> appInfoEntityList = appDao.queryAppInfoByUserID(userGuid);
-        if(appInfoEntityList.isEmpty()||appInfoEntityList.size()== 0){
+        if(appInfoEntityList.isEmpty()|| appInfoEntityList.size() == 0){
             homeResponse.setRetCode(ErrorConstant.NOAPPCODE);
             return homeResponse;
         }
         APPInfoEntity appInfoEntity = appInfoEntityList.get(0);
         //2. 默认取第一个APP 根据APPID 找到频道信息列表
         List<ChannelEntity> channelEntityList = channleDao.queryChannelByAppID(appInfoEntity.getAppGuid());
-        if(channelEntityList.isEmpty()||channelEntityList.size()==0){
+        if(channelEntityList.isEmpty()|| channelEntityList.size() == 0){
             homeResponse.setRetCode(ErrorConstant.NOCHANNEL_CODE);
             homeResponse.setRetMsg(ErrorConstant.NOCHANNEL_MESSAGE);
             return homeResponse;
         }
         homeResponse.setChannelEntityList(channelEntityList);
 
-
+        //获取推荐频道的ID
         String channelGuID = null;
         for (ChannelEntity channelEntity:channelEntityList) {
             if(null!=channelEntity.getRecommand()&& channelEntity.getRecommand()){
@@ -84,13 +87,16 @@ public class ArticleServiceImpl implements IArticleService {
             }
         }
         long artStart = System.currentTimeMillis();
-        //获取推荐文章信息 (按时间倒序获取10条数据)
+        //获取推荐文章信息 (按时间倒序获取100条数据,排序规则是 时间倒序第一位，Recommend 第二位)
         List<ArticleInfoEntity> articleInfoEntityList = articleDao.queryTJArticleTOP100(channelGuID);
+
         //处理同刊占比不能超过30%
         List<ArticleInfoEntity> resultArticleList = this.handleArticleList(articleInfoEntityList);
 
+        Long sysStart = System.currentTimeMillis();
         //TODO 记录推荐的文章到文章推荐记录表(异步)
-
+        recordService.recordTXArticle(channelGuID,IP,resultArticleList);
+        long sysEnd = System.currentTimeMillis();
 
 
         // 打散排序
@@ -101,6 +107,7 @@ public class ArticleServiceImpl implements IArticleService {
         long end = System.currentTimeMillis();
         System.out.println("总耗时 ： "+(end-start));
         System.out.println("获取文章列表耗时 ： "+(end-artStart));
+        System.out.println("记录文章推荐记录耗时 ： "+(sysEnd-sysStart));
 
         return homeResponse;
     }
@@ -149,8 +156,9 @@ public class ArticleServiceImpl implements IArticleService {
         //处理同刊占比30%
         List<ArticleInfoEntity> articleInfoEntityListResult = this.handleArticleList(resulist);
 
-        //TODO  记录推荐的文章到推荐记录表
 
+        //记录推荐的文章到文章推荐记录表(异步)
+        recordService.recordTXArticle(channelId,IP,articleInfoEntityListResult);
 
 
         // 打散排序
@@ -227,8 +235,8 @@ public class ArticleServiceImpl implements IArticleService {
             articleInfoEntityList = articleDao.findArticleInfoByNewID(channelGuid);
         }
 
-        //TODO  记录推荐的文章到推荐记录表
-
+        // 记录推荐的文章到文章推荐记录表(异步)
+        recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
 
 
         // 打散排序

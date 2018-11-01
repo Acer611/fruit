@@ -90,11 +90,9 @@ public class DateUtils {
         String str = "2015-08-27 18:05:49";
 
         Date dateTime = stringToDate(str);
-        String r = dateTime.toGMTString();
 
         long s = dateTime.getTime();
 
-        System.out.println(r);
         System.out.println(timeStamp2Date(s+""));
         System.out.println(dateTime);
         System.out.println(CST2Date(date));
