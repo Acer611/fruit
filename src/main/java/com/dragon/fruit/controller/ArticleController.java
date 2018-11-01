@@ -1,9 +1,10 @@
 package com.dragon.fruit.controller;
 
-import com.dragon.fruit.common.constant.ErrorConstant;
+import com.dragon.fruit.common.utils.DateUtils;
 import com.dragon.fruit.common.utils.IPUtils;
 import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
-import com.dragon.fruit.entity.vo.response.ArticleFVResponse;
+import com.dragon.fruit.entity.vo.response.ArticleListResponse;
+import com.dragon.fruit.entity.vo.response.HomeResponse;
 import com.dragon.fruit.service.IArticleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.Date;
 
 
 /**
@@ -20,7 +21,7 @@ import java.util.List;
  * Created by Gaofei on 2018/10/30
  */
 
-@Api(tags = "用户管理")
+@Api(tags = "果实频道文章接口")
 @RestController
 @RequestMapping("/article")
 public class ArticleController {
@@ -28,16 +29,6 @@ public class ArticleController {
     @Autowired
     private IArticleService articleService;
 
-
-
-
-    @ApiOperation(value = "查询文章信息根据文章的ID")
-    @ResponseBody
-    @GetMapping("/findArticle")
-    public ArticleInfoEntity findArticle(@ApiParam(value = "文章ID", required = true) @RequestParam(name = "titleId") String titleId,
-                                         HttpServletRequest request){
-        return  articleService.findArticle(titleId);
-    }
 
     /**
      * 首页
@@ -48,14 +39,17 @@ public class ArticleController {
     @ApiOperation(value = "首页")
     @ResponseBody
     @GetMapping("/home")
-    public ArticleFVResponse home(@ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
-                                  HttpServletRequest request){
+    public HomeResponse home(@ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
+                             HttpServletRequest request){
 
-        ArticleFVResponse articleFVResponse = articleService.getHomeInfo(userGuid);
+        String IP = IPUtils.getIP(request);
+        System.out.println(" IP地址为： "+ IP);
+        HomeResponse homeResponse = articleService.getHomeInfo(userGuid,IP);
 
-        articleFVResponse.setRetCode(ErrorConstant.SUCCESS);
-        return articleFVResponse;
+        return homeResponse;
     }
+
+
 
     /**
      * 查询特定频道下的文章信息列表（上滑动作）
@@ -64,16 +58,22 @@ public class ArticleController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "分页查询特定频道文章信息（上滑按时间倒序）")
+    @ApiOperation(value = "分页查询特定频道文章信息（上滑动作）")
     @ResponseBody
-    @GetMapping("/findArticleInfo")
-    public List<ArticleInfoEntity> findArticleInfo(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
-                                                   @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
-                                                   @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
-                                                   HttpServletRequest request){
-
-        return  articleService.findArticeleByChannelID(channelGuid,pageNum,pageSize);
+    @GetMapping("/findArticleUpglide")
+    public ArticleListResponse findArticleListByChannelID(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
+                                                          @ApiParam(value = "上面十条最后一篇文章的创建时间，若为第一次点击频道则传null 格式为yyy-MM-dd HH:mm:ss", required = true) @RequestParam(name = "createTime") String createTime,
+                                                          @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
+                                                          @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
+                                                          HttpServletRequest request){
+        String IP = IPUtils.getIP(request);
+        Date createDate = new Date();
+        if(null != createTime && !createTime.equalsIgnoreCase("null")){
+            createDate = DateUtils.stringToDate(createTime);
+        }
+        return  articleService.findArticeleByChannelID(channelGuid,createDate,IP,pageNum,pageSize);
     }
+
 
 
     /**
@@ -83,16 +83,31 @@ public class ArticleController {
      * @param pageSize
      * @return
      */
-    @ApiOperation(value = "获取特定频道下最新文章信息（上滑）")
+    @ApiOperation(value = "获取特定频道下最新文章信息（下拉动作）")
     @ResponseBody
-    @GetMapping("/findNewArticleInfo")
-    public List<ArticleInfoEntity> findNewArticleInfo(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
+    @GetMapping("/findNewArticleList")
+    public ArticleListResponse findNewArticleInfo(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
                                                       @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
                                                       @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
                                                       HttpServletRequest request){
         String IP = IPUtils.getIP(request);
         return  articleService.findNewArticeleByChannelID(channelGuid,IP,pageNum,pageSize);
     }
+
+
+
+    @ApiOperation(value = "查询文章信息根据文章的ID")
+    @ResponseBody
+    @GetMapping("/QueryArticle")
+    public ArticleInfoEntity findArticle(@ApiParam(value = "文章ID", required = true) @RequestParam(name = "titleId") String titleId,
+                                         HttpServletRequest request){
+        String IP = IPUtils.getIP(request);
+        return  articleService.findArticle(titleId,IP);
+    }
+
+
+
+
 
 
 }

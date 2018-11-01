@@ -14,7 +14,7 @@ import java.util.List;
  * @create: 2018/10/31 09:30
  */
 
-public class ArticleFVResponse  extends  CommonResponse{
+public class HomeResponse extends  CommonResponse{
 
     @ApiModelProperty(value = "用户信息")
     private UserInfoEntity userInfoEntity;

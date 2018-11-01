@@ -88,7 +88,7 @@ public interface ArticleDao {
             "a.Simgs as simgs," +
             "a.Oprator as oprator" +
             " from ArticleInfo AS a WHERE TitleID= #{titleID}")
-    ArticleInfoEntity findArticleByTitleId(String titleID);
+    List<ArticleInfoEntity> findArticleByTitleId(String titleID);
 
     /**
      * 根据时间查找频道下的信息

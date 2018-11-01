@@ -3,7 +3,6 @@ package com.dragon.fruit.common.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -22,25 +21,6 @@ public class DateUtils {
     public static final String DATE_FULL_FORMAT = "yyyy-MM-dd HH:mm:ss";
     //全日期格式无秒
     public static final String DATE_NO_SS_FORMAT = "yyyy-MM-dd HH:mm";
-
-    /**
-     * UTC 时间转换为北京时间
-     *
-     * @param UTCStr
-     * @throws ParseException
-     */
-    public static Date UTCToCST(String UTCStr) throws ParseException {
-        Date date = null;
-        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FULL_FORMAT);
-        date = sdf.parse(UTCStr);
-        System.out.println("UTC时间: " + date);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) + 8);
-        //calendar.getTime() 返回的是Date类型，也可以使用calendar.getTimeInMillis()获取时间戳
-        System.out.println("北京时间: " + calendar.getTime());
-        return calendar.getTime();
-    }
 
 
     /**
@@ -64,14 +44,15 @@ public class DateUtils {
      * @param cstDate
      * @return 北京时间格式
      */
-    public static  String CST2Date(String cstDate){
+    public static  Date CST2Date(String cstDate){
 
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
 
         try{
             Date d = sdf.parse(cstDate);
             String formatDate = new SimpleDateFormat(DATE_FULL_FORMAT).format(d);
-            return  formatDate;
+
+            return  stringToDate(formatDate);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -81,12 +62,44 @@ public class DateUtils {
     }
 
 
+    /**
+     * 字符串时间格式转化为日期格式
+     * @param dateStr
+     * @return
+     */
+    public static Date stringToDate(String dateStr){
+
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FULL_FORMAT);
+
+        Date date = null;
+        try {
+            date = formatter.parse(dateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
+
+    }
+
     public static void main(String[] args) {
         String DateStr = "Tue Oct 09 13:40:17 CST 2018";
 
         String date = "Thu Aug 27 18:05:49 CST 2015";
 
+        String str = "2015-08-27 18:05:49";
+
+        Date dateTime = stringToDate(str);
+        String r = dateTime.toGMTString();
+
+        long s = dateTime.getTime();
+
+        System.out.println(r);
+        System.out.println(timeStamp2Date(s+""));
+        System.out.println(dateTime);
         System.out.println(CST2Date(date));
+
+
 
 
     }
