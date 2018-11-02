@@ -1,5 +1,6 @@
 package com.dragon.fruit.controller;
 
+import com.dragon.fruit.common.constant.UserConstant;
 import com.dragon.fruit.common.utils.DateUtils;
 import com.dragon.fruit.common.utils.IPUtils;
 import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
@@ -100,12 +101,16 @@ public class ArticleController {
     @ResponseBody
     @GetMapping("/QueryArticle")
     public ArticleInfoEntity findArticle(@ApiParam(value = "文章ID", required = true) @RequestParam(name = "titleId") String titleId,
+                                         @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
+                                         @ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelId") String channelId,
                                          HttpServletRequest request){
         String IP = IPUtils.getIP(request);
-        return  articleService.findArticle(titleId,IP);
+
+        if(null==userGuid||userGuid.equalsIgnoreCase("null")){
+            userGuid= UserConstant.DEFAULT_USER;
+        }
+        return  articleService.findArticle(titleId,IP,userGuid,channelId);
     }
-
-
 
 
 

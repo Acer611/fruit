@@ -248,21 +248,25 @@ public class ArticleServiceImpl implements IArticleService {
 
     }
 
+
+
     /**
      * 查询文章详细信息根据文章的ID
      * @param titleId
      * @return
      */
     @Override
-    public ArticleInfoEntity findArticle(String titleId,String IP) {
+    public ArticleInfoEntity findArticle(String titleId,String IP,String userGuid,String channelID) {
         List<ArticleInfoEntity> articleInfoEntityList = articleDao.findArticleByTitleId(titleId);
         ArticleInfoEntity articleInfoEntity =  null;
         if(articleInfoEntityList.size()>0){
             articleInfoEntity =articleInfoEntityList.get(0);
         }
-        //TODO 文章访问记录加1
+        //TODO 文章访问记录加1(异步)
 
-        //TODO  记录文章访问记录
+        recordService.updateVisitCountAsyn(titleId,articleInfoEntity);
+        //记录文章访问记录(异步记录)
+        recordService.recordArticleVisitInfo(IP,userGuid,articleInfoEntity,channelID);
         return articleInfoEntity;
     }
 

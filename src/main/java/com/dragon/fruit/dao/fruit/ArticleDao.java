@@ -1,10 +1,13 @@
 package com.dragon.fruit.dao.fruit;
 
 
+import com.dragon.fruit.dao.fruit.sqlprovider.ArticleVisitSQLProvider;
 import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.UpdateProvider;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.Date;
 import java.util.List;
@@ -86,6 +89,7 @@ public interface ArticleDao {
             "a.Recommend as recommend ," +
             "a.Keyword as keyword," +
             "a.Simgs as simgs," +
+            "a.VisitCount as visitCount," +
             "a.Oprator as oprator" +
             " from ArticleInfo AS a WHERE TitleID= #{titleID}")
     List<ArticleInfoEntity> findArticleByTitleId(String titleID);
@@ -296,4 +300,7 @@ public interface ArticleDao {
             "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  and a.CreateDate>#{createDate}" +
             "order by a.CreateDate DESC ,a.Recommend DESC")
     List<ArticleInfoEntity> queryTJArticleTOP100AndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
+
+    @UpdateProvider(type= ArticleVisitSQLProvider.class, method="updateVisitCount")
+    void updateVisitCount(ArticleInfoEntity articleInfoEntity);
 }

@@ -20,4 +20,18 @@ public interface IRecordService {
      * @param resultArticleList 文章列表
      */
     void recordTXArticle(String channelGuID, String IP, List<ArticleInfoEntity> resultArticleList);
+
+    /**
+     *
+     * @param ip IP地址
+     * @param userGuid 用户的ID
+     * @param articleInfoEntity 文章信息
+     */
+    void recordArticleVisitInfo(String ip, String userGuid, ArticleInfoEntity articleInfoEntity,String channelID);
+
+    /**
+     * 异步增加文章访问量
+     * @param titleId
+     */
+    void updateVisitCountAsyn(String titleId,ArticleInfoEntity articleInfoEntity);
 }

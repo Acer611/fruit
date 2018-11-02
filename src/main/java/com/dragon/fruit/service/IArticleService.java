@@ -44,7 +44,7 @@ public interface IArticleService {
      * @param IP
      * @return
      */
-    ArticleInfoEntity findArticle(String titleId,String IP);
+    ArticleInfoEntity findArticle(String titleId,String IP,String userGuid,String channelID);
 
 
 

@@ -59,7 +59,7 @@ public class ArticleInfoEntity implements Serializable {
 	@ApiModelProperty(value = "操作者")
 	private String oprator;
     @ApiModelProperty(value = "文章被访问次数")
-    private String visitCount;
+    private Long visitCount;
 
 
     public Integer getId() {
@@ -246,11 +246,11 @@ public class ArticleInfoEntity implements Serializable {
 		this.oprator = oprator;
 	}
 
-    public String getVisitCount() {
+    public Long getVisitCount() {
         return visitCount;
     }
 
-    public void setVisitCount(String visitCount) {
+    public void setVisitCount(Long visitCount) {
         this.visitCount = visitCount;
     }
 }
