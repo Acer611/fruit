@@ -1,12 +1,8 @@
 package com.dragon.fruit.service.impl;
 
 import com.dragon.fruit.common.utils.UUIDUtil;
-import com.dragon.fruit.dao.fruit.ArticleDao;
-import com.dragon.fruit.dao.fruit.ChannelExposureDao;
-import com.dragon.fruit.dao.fruit.UserArticleVisitDao;
-import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
-import com.dragon.fruit.entity.po.fruit.ChannelExposureLogEntity;
-import com.dragon.fruit.entity.po.fruit.UserArticleInfoVisitLogEntity;
+import com.dragon.fruit.dao.fruit.*;
+import com.dragon.fruit.entity.po.fruit.*;
 import com.dragon.fruit.service.IRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -27,11 +23,15 @@ public class RecordServiceImpl  implements IRecordService {
 
     @Autowired
     ChannelExposureDao channelExposureDao;
-
     @Autowired
     UserArticleVisitDao userArticleVisitDao;
     @Autowired
     ArticleDao articleDao;
+    @Autowired
+    ChannelDao channelDao;
+    @Autowired
+    UserChannelVisitDao userChannelVisitDao;
+
 
     /**
      * 异步记录推荐文章记录到文章推荐表
@@ -79,7 +79,7 @@ public class RecordServiceImpl  implements IRecordService {
         userArticleInfoVisitLogEntity.setUserId(userGuid);
         userArticleInfoVisitLogEntity.setVisitTime(new Date());
         userArticleInfoVisitLogEntity.setTitleID(articleInfoEntity.getTitleID());
-        //没有访问记录 新增一天数据
+        //没有访问记录 新增一条数据
         if(userVistInfo==null){
             userArticleInfoVisitLogEntity.setID(UUIDUtil.getUuidStr());
             userArticleInfoVisitLogEntity.setVisitCount(1L);
@@ -103,5 +103,48 @@ public class RecordServiceImpl  implements IRecordService {
             articleInfoEntity.setVisitCount(visitCount);
         }
         articleDao.updateVisitCount(articleInfoEntity);
+    }
+
+    @Async("taskExecutor")
+    @Override
+    public void recordChannelVist(String channelGuID, String userGuid, String ip) {
+
+        //获取频道的信息 channel表
+        ChannelEntity channelEntity = channelDao.queryChannelInfoByChannelGuid(channelGuID);
+        int recommend = 1;
+        if(null!=channelEntity.getRecommand()&&channelEntity.getRecommand()){
+            recommend = 0;
+        }
+
+        //获取频道访问记录channelvistit表， 若没有记录新增记录， 若有记录访问次数加1
+       UserChannelVisitLogEntity userChannelVisitLogEntity = userChannelVisitDao.queryChannelVisitInfo(channelGuID,ip,userGuid);
+       if(null==userChannelVisitLogEntity){
+           userChannelVisitLogEntity = new UserChannelVisitLogEntity();
+           //新增一条数据
+           userChannelVisitLogEntity.setID(UUIDUtil.getUuidStr());
+           userChannelVisitLogEntity.setChannelId(channelGuID);
+           userChannelVisitLogEntity.setIP(ip);
+           userChannelVisitLogEntity.setIsRecommend(recommend);
+           userChannelVisitLogEntity.setDelFlag(0);
+           userChannelVisitLogEntity.setLastVisitTime(new Date());
+           userChannelVisitLogEntity.setUserId(userGuid);
+           userChannelVisitLogEntity.setVisitCount(1L);
+
+           userChannelVisitDao.inesertUserChannelVisitLog(userChannelVisitLogEntity);
+       }else{
+           //修改数据信息访问次数+1,时间修改
+           userChannelVisitLogEntity.setLastVisitTime(new Date());
+           userChannelVisitLogEntity.setVisitCount(userChannelVisitLogEntity.getVisitCount()+1);
+           userChannelVisitDao.updateUserChannelVisitLog(userChannelVisitLogEntity);
+       }
+       //Channel表visitCount + 1
+        long visitCount = 1;
+       if(null!=channelEntity.getVisitCount()){
+           visitCount = channelEntity.getVisitCount()+visitCount;
+       }
+        channelEntity.setVisitCount(visitCount);
+        System.out.println("频道访问次数为： "+ visitCount);
+        channelDao.updateChannelVisitCount(channelEntity);
+
     }
 }

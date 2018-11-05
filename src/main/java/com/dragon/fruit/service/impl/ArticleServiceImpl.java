@@ -36,8 +36,11 @@ public class ArticleServiceImpl implements IArticleService {
     UserDao userDao;
     @Autowired
     APPDao appDao;
+
     @Autowired
     IRecordService recordService;
+    @Autowired
+    UserChannelVisitDao userChannelVisitDao;
 
 
 
@@ -94,9 +97,12 @@ public class ArticleServiceImpl implements IArticleService {
         List<ArticleInfoEntity> resultArticleList = this.handleArticleList(articleInfoEntityList);
 
         Long sysStart = System.currentTimeMillis();
-        //TODO 记录推荐的文章到文章推荐记录表(异步)
+        // 记录推荐的文章到文章推荐记录表(异步)
         recordService.recordTXArticle(channelGuID,IP,resultArticleList);
         long sysEnd = System.currentTimeMillis();
+
+        //TODO 记录频道访问记录到频道访问记录表（异步）
+        recordService.recordChannelVist(channelGuID,userGuid,IP);
 
 
         // 打散排序
@@ -165,6 +171,11 @@ public class ArticleServiceImpl implements IArticleService {
         articleInfoEntityListResult = ListRandomUtils.randomList(articleInfoEntityListResult);
         articleListResponse.setArticleInfoEntityList(articleInfoEntityListResult);
         articleListResponse.setRetCode(ErrorConstant.SUCCESS);
+
+
+        //TODO 记录频道访问记录到频道访问记录表（异步）
+
+        //TODO 频道表（channel）访问次数加 1
 
         long end = System.currentTimeMillis();
         System.out.println("总耗时 ： "+(end-start));
@@ -239,6 +250,10 @@ public class ArticleServiceImpl implements IArticleService {
         recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
 
 
+        //TODO 记录频道访问记录到频道访问记录表（异步）
+
+        //TODO 频道表（channel）访问次数加 1
+
         // 打散排序
         articleInfoEntityList = ListRandomUtils.randomList(articleInfoEntityList);
         articleListResponse.setArticleInfoEntityList(articleInfoEntityList);
@@ -262,8 +277,7 @@ public class ArticleServiceImpl implements IArticleService {
         if(articleInfoEntityList.size()>0){
             articleInfoEntity =articleInfoEntityList.get(0);
         }
-        //TODO 文章访问记录加1(异步)
-
+        // 文章访问记录加1(异步)
         recordService.updateVisitCountAsyn(titleId,articleInfoEntity);
         //记录文章访问记录(异步记录)
         recordService.recordArticleVisitInfo(IP,userGuid,articleInfoEntity,channelID);

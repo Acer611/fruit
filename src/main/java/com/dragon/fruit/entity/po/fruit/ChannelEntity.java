@@ -45,6 +45,8 @@ public class ChannelEntity implements Serializable {
 	private Integer channelSort;
 	@ApiModelProperty(value = "是否是推荐频道")
 	private Boolean isRecommand;
+	@ApiModelProperty(value = "访问次数")
+	private Long visitCount;
 
 	public String getChannelGuid() {
 		return channelGuid;
@@ -172,6 +174,14 @@ public class ChannelEntity implements Serializable {
 
 	public void setRecommand(Boolean recommand) {
 		isRecommand = recommand;
+	}
+
+	public Long getVisitCount() {
+		return visitCount;
+	}
+
+	public void setVisitCount(Long visitCount) {
+		this.visitCount = visitCount;
 	}
 }
 

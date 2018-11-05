@@ -1,9 +1,12 @@
 package com.dragon.fruit.dao.fruit;
 
 
+import com.dragon.fruit.dao.fruit.sqlprovider.ChannelSQLProvider;
+import com.dragon.fruit.dao.fruit.sqlprovider.ChannelVisitSQLProvider;
 import com.dragon.fruit.entity.po.fruit.ChannelEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.UpdateProvider;
 
 import java.util.List;
 
@@ -29,4 +32,11 @@ public interface ChannelDao {
      */
     @Select("SELECT * FROM Channel WHERE AppId=#{appGuid} ORDER BY ChannelSort ")
     List<ChannelEntity> queryChannelByAppID(String appGuid);
+
+    /**
+     * 修改频道表中的访问次数
+     * @param channelEntity
+     */
+    @UpdateProvider(type= ChannelSQLProvider.class, method="updateChannelVisitCount")
+    void updateChannelVisitCount(ChannelEntity channelEntity);
 }

@@ -31,8 +31,8 @@ public class Swagger2Config {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("MKH的接口API")
-                .description("MKH的接口API")
+                .title("果实接口API")
+                .description("果实接口API")
                 .version("1.0")
                 .build();
     }

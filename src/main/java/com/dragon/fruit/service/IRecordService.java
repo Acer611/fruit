@@ -22,7 +22,7 @@ public interface IRecordService {
     void recordTXArticle(String channelGuID, String IP, List<ArticleInfoEntity> resultArticleList);
 
     /**
-     *
+     *异步记录文章访问记录
      * @param ip IP地址
      * @param userGuid 用户的ID
      * @param articleInfoEntity 文章信息
@@ -34,4 +34,12 @@ public interface IRecordService {
      * @param titleId
      */
     void updateVisitCountAsyn(String titleId,ArticleInfoEntity articleInfoEntity);
+
+    /**
+     * 异步记录频道访问记录
+     * @param channelGuID 频道ID
+     * @param userGuid 用户ID
+     * @param ip IP
+     */
+    void recordChannelVist(String channelGuID, String userGuid, String ip);
 }
