@@ -24,6 +24,7 @@
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.channelGuid,jdbcType=VARCHAR}, #{item.titleID,jdbcType=VARCHAR},#{item.createDate},#{item.IP,jdbcType=VARCHAR})
         </foreach>
+
     </insert>
 
 

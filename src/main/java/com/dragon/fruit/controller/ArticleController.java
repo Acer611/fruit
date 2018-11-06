@@ -64,6 +64,7 @@ public class ArticleController {
     @GetMapping("/findArticleUpglide")
     public ArticleListResponse findArticleListByChannelID(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
                                                           @ApiParam(value = "上面十条最后一篇文章的创建时间，若为第一次点击频道则传null 格式为yyy-MM-dd HH:mm:ss", required = true) @RequestParam(name = "createTime") String createTime,
+                                                          @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
                                                           @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
                                                           @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
                                                           HttpServletRequest request){
@@ -72,7 +73,7 @@ public class ArticleController {
         if(null != createTime && !createTime.equalsIgnoreCase("null")){
             createDate = DateUtils.stringToDate(createTime);
         }
-        return  articleService.findArticeleByChannelID(channelGuid,createDate,IP,pageNum,pageSize);
+        return  articleService.findArticeleByChannelID(channelGuid,createDate,IP,userGuid,pageNum,pageSize);
     }
 
 
@@ -88,11 +89,12 @@ public class ArticleController {
     @ResponseBody
     @GetMapping("/findNewArticleList")
     public ArticleListResponse findNewArticleInfo(@ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelGuid") String channelGuid,
-                                                      @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
-                                                      @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
-                                                      HttpServletRequest request){
+                                                  @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
+                                                  @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
+                                                  @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
+                                                  HttpServletRequest request){
         String IP = IPUtils.getIP(request);
-        return  articleService.findNewArticeleByChannelID(channelGuid,IP,pageNum,pageSize);
+        return  articleService.findNewArticeleByChannelID(channelGuid,IP, userGuid,pageNum,pageSize);
     }
 
 

@@ -102,36 +102,36 @@ public interface ArticleDao {
      */
 
     @Select("SELECT TOP 10 " +
-            "a.TitleID," +
-            "a.ID," +
-            "a.CategoryCode," +
-            "a.Title," +
-            "a.CreateDate ," +
-            "a.Author," +
-            "a.MagazineName," +
-            "a.Year," +
-            "a.Issue," +
-            "a.Columns," +
-            "a.ArticleCreateDate," +
-            "a.UpdateDate," +
-            "a.Abstract," +
-            "a.WordSize," +
-            "a.Rank," +
-            "a.IsOnline," +
-            "a.ArticleContent," +
-            "a.Imgs," +
-            "a.HasImage," +
-            "a.Recommend," +
-            "a.Keyword," +
-            "a.Simgs," +
-            "a.Oprator," +
-            "ua.ChannelGuid " +
+            "a.TitleID as titleID ," +
+            "a.ID as iD," +
+            "a.CategoryCode as categoryCode," +
+            "a.Title as title," +
+            "a.CreateDate as createDate," +
+            "a.Author as author," +
+            "a.MagazineName as magazineName," +
+            "a.Year as year," +
+            "a.Issue as issue," +
+            "a.Columns as columns," +
+            "a.ArticleCreateDate as articleCreateDate," +
+            "a.UpdateDate as updateDate," +
+            "a.Abstract as abstractName," +
+            "a.WordSize as wordSize," +
+            "a.Rank as rank," +
+            "a.IsOnline as isOnline," +
+            "a.ArticleContent as articleContent," +
+            "a.Imgs as imgs," +
+            "a.HasImage as hasImage," +
+            "a.Recommend as recommend ," +
+            "a.Keyword as keyword," +
+            "a.Simgs as simgs," +
+            "a.VisitCount as visitCount," +
+            "a.Oprator as oprator" +
             "FROM " +
             "ArticleInfo AS a " +
             "LEFT JOIN UserArticle AS ua ON a.TitleID= ua.TitleID " +
             "WHERE " +
             "ua.ChannelGuid= #{channelGuid}  AND a.CreateDate > #{createDate} " +
-            "ORDER BY " +
+            " ORDER BY " +
             "a.CreateDate DESC")
     List<ArticleInfoEntity> findArticleInfoByChannelAndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
 
@@ -227,16 +227,17 @@ public interface ArticleDao {
     List<ArticleInfoEntity> queryTJArticleTOP100(String channelGuid);
 
     /**
-     * 倒序获取推荐文章
+     * 随机获取10条推荐文章
      * @param channelId
      * @return
      */
-    @Select("select  a.*,p.UserId  from ArticleInfo a  " +
+    @Select("select Top 10 a.*,p.UserId  from ArticleInfo a  " +
             "left join UserArticle u on u.TitleID = a.TitleID    " +
             "LEFT JOIN App p on p.UserId = u.UserGuid  " +
             "LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
             "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  " +
-            "order by a.CreateDate DESC ,a.Recommend DESC")
+            " ORDER BY " +
+            "NEWID()")
     List<ArticleInfoEntity> queryTJArticle(String channelId);
 
     /**
@@ -297,7 +298,7 @@ public interface ArticleDao {
             "left join UserArticle u on u.TitleID = a.TitleID    " +
             "LEFT JOIN App p on p.UserId = u.UserGuid  " +
             "LEFT JOIN Channel c on c.AppId = p.AppGuid  " +
-            "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  and a.CreateDate>#{createDate}" +
+            "WHERE c.ChannelGuid=#{channelGuid}  and a.HasImage = 1  and a.CreateDate>#{createDate} " +
             "order by a.CreateDate DESC ,a.Recommend DESC")
     List<ArticleInfoEntity> queryTJArticleTOP100AndTime(@Param("channelGuid") String channelGuid, @Param("createDate") Date createDate);
 

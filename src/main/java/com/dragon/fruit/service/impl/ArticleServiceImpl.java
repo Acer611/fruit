@@ -101,7 +101,7 @@ public class ArticleServiceImpl implements IArticleService {
         recordService.recordTXArticle(channelGuID,IP,resultArticleList);
         long sysEnd = System.currentTimeMillis();
 
-        //TODO 记录频道访问记录到频道访问记录表（异步）
+        // 记录频道访问记录到频道访问记录表（异步）
         recordService.recordChannelVist(channelGuID,userGuid,IP);
 
 
@@ -128,7 +128,7 @@ public class ArticleServiceImpl implements IArticleService {
      * @return
      */
     @Override
-    public ArticleListResponse findArticeleByChannelID(String channelId, Date createTime, String IP, int pageNum, int pageSize) {
+    public ArticleListResponse findArticeleByChannelID(String channelId, Date createTime, String IP, String userGuid,int pageNum, int pageSize) {
         long start = System.currentTimeMillis();
         ArticleListResponse articleListResponse = new ArticleListResponse();
         List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
@@ -172,10 +172,11 @@ public class ArticleServiceImpl implements IArticleService {
         articleListResponse.setArticleInfoEntityList(articleInfoEntityListResult);
         articleListResponse.setRetCode(ErrorConstant.SUCCESS);
 
-
         //TODO 记录频道访问记录到频道访问记录表（异步）
+        if(pageNum==1){
+            recordService.recordChannelVist(channelId,userGuid,IP);
+        }
 
-        //TODO 频道表（channel）访问次数加 1
 
         long end = System.currentTimeMillis();
         System.out.println("总耗时 ： "+(end-start));
@@ -195,7 +196,7 @@ public class ArticleServiceImpl implements IArticleService {
      * @return
      */
     @Override
-    public ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP, int pageNum, int pageSize) {
+    public ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP,String userGuid, int pageNum, int pageSize) {
         List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
         ArticleListResponse articleListResponse = new ArticleListResponse();
 
@@ -207,44 +208,62 @@ public class ArticleServiceImpl implements IArticleService {
             return articleListResponse;
         }
 
+
+        //获取用户进入频道或最近拉新数据的时间
+        UserChannelVisitLogEntity userChannelVisitLogEntity = userChannelVisitDao.queryChannelVisitInfo(channelGuid,IP,userGuid);
+        Date lastVisitTime = userChannelVisitLogEntity.getLastVisitTime();
+        if(null==lastVisitTime){
+            System.out.println("第一次访问......");
+            lastVisitTime = new Date();
+        }
+
         List<ArticleInfoEntity> articleInfoEntityListTop100 = new ArrayList<>();
         if(null!=channelEntity.getRecommand() && channelEntity.getRecommand()){
             //根据IP和频道ID 找到最近推荐的一篇文章ID。 取10条按时间排列
-            List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
-            if(channelExposureLogEntityList.size()>0){
-                ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
+            //List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
+            //if(channelExposureLogEntityList.size()>0){
+
+                /*ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
                 //根据文章ID找到文章的时间
                 List<ArticleInfoEntity> articleInfoList = articleDao.findArticleByTitleId(channelExposureLogEntity.getTitleID());
                 ArticleInfoEntity articleInfoEntity = null;
                 if(articleInfoList.size()>0){
                     articleInfoEntity = articleInfoList.get(0);
-                }
-                articleInfoEntityListTop100 = articleDao.queryTJArticleTOP100AndTime(channelGuid, articleInfoEntity.getCreateDate());
+                }*/
+
+                articleInfoEntityListTop100 = articleDao.queryTJArticleTOP100AndTime(channelGuid,lastVisitTime);
                 articleInfoEntityList = this.handleArticleList(articleInfoEntityListTop100);
+            //}
+
+            //若没有，走老方法随机推荐10条
+            if(articleInfoEntityList.size()<=9){
+                articleInfoEntityList = articleDao.queryTJArticle(channelGuid);
             }
 
 
         }else{
             //根据IP和频道ID 找到最近推荐的一篇文章ID。 取10条按时间排列
-            List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
+            //List<ChannelExposureLogEntity> channelExposureLogEntityList = channelExposureDao.findChannelExposureByChangIDAndIP(channelGuid,IP);
 
-            if(channelExposureLogEntityList.size()>0){
-                ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
+            //if(channelExposureLogEntityList.size()>0){
+                /*ChannelExposureLogEntity channelExposureLogEntity = channelExposureLogEntityList.get(0);
                 //根据文章ID找到文章的时间
                 List<ArticleInfoEntity> articleInfoList = articleDao.findArticleByTitleId(channelExposureLogEntity.getTitleID());
                 ArticleInfoEntity articleInfoEntity = null;
                 if(articleInfoList.size()>0){
                     articleInfoEntity = articleInfoList.get(0);
-                }
-                articleInfoEntityListTop100 = articleDao.findArticleInfoByChannelAndTime(channelGuid, articleInfoEntity.getCreateDate());
+                }*/
+                articleInfoEntityListTop100 = articleDao.findArticleInfoByChannelAndTime(channelGuid, lastVisitTime);
                 articleInfoEntityList = this.handleArticleList(articleInfoEntityListTop100);
+           // }
+
+            //若没有，走老方法随机推荐10条
+            if(articleInfoEntityList.size()<=0){
+                articleInfoEntityList = articleDao.findArticleInfoByNewID(channelGuid);
             }
+
         }
 
-        //若没有，走老方法随机推荐10条
-        if(articleInfoEntityList.size()<=0){
-            articleInfoEntityList = articleDao.findArticleInfoByNewID(channelGuid);
-        }
 
         // 记录推荐的文章到文章推荐记录表(异步)
         recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
@@ -252,7 +271,9 @@ public class ArticleServiceImpl implements IArticleService {
 
         //TODO 记录频道访问记录到频道访问记录表（异步）
 
-        //TODO 频道表（channel）访问次数加 1
+        if(pageNum==1){
+            recordService.recordChannelVist(channelGuid,userGuid,IP);
+        }
 
         // 打散排序
         articleInfoEntityList = ListRandomUtils.randomList(articleInfoEntityList);

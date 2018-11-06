@@ -26,7 +26,7 @@ public interface IArticleService {
      * @param pageSize
      * @return
      */
-    ArticleListResponse findArticeleByChannelID(String channelId, Date createTime, String IP, int pageNum, int pageSize);
+    ArticleListResponse findArticeleByChannelID(String channelId, Date createTime, String IP, String userGuid,int pageNum, int pageSize);
 
     /**
      * 获取制定频道下最新的文章信息（默认取十条，若没有最新数据，随机推荐十条）
@@ -36,7 +36,7 @@ public interface IArticleService {
      * @param pageSize
      * @return
      */
-    ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP, int pageNum, int pageSize);
+    ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP, String userGuid,int pageNum, int pageSize);
 
     /**
      * 根据文章的ID 查找文章的详细信息
