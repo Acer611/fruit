@@ -24,7 +24,7 @@ import java.util.Date;
 
 @Api(tags = "果实频道文章接口")
 @RestController
-@RequestMapping("/article")
+@RequestMapping("/api/article")
 public class ArticleController {
 
     @Autowired

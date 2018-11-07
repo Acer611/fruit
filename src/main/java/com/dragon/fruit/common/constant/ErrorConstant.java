@@ -16,6 +16,13 @@ public class ErrorConstant {
 
     public static final String ERROR_MESSAGE = "";
 
+
+    /**
+     * Token 生成出错
+     */
+    public static final Integer TOKEN_CODE  = 4001;
+    public static final String TOKEN_MESSAGE = "TOKEN 服务出错";
+
     /**
      * 用户没有APP
      */
@@ -27,4 +34,6 @@ public class ErrorConstant {
      */
     public static final Integer NOCHANNEL_CODE  = 5001;
     public static final String NOCHANNEL_MESSAGE = "当前用户的APP没有配置频道,请到后台系统配置好Channel";
+
+
 }
