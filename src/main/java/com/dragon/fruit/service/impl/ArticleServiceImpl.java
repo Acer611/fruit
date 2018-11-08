@@ -11,6 +11,8 @@ import com.dragon.fruit.service.IArticleService;
 import com.dragon.fruit.service.IRecordService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,6 +27,8 @@ import java.util.*;
  */
 @Service(value="articleService")
 public class ArticleServiceImpl implements IArticleService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArticleServiceImpl.class);
 
     @Autowired
     ArticleDao articleDao;
@@ -54,7 +58,7 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public HomeResponse getHomeInfo(String userGuid, String IP) {
         long start = System.currentTimeMillis();
-
+        logger.info("首页service......");
         HomeResponse homeResponse = new HomeResponse();
         //获取用户信息
         if(StringUtils.isEmpty(userGuid)) {
@@ -111,9 +115,9 @@ public class ArticleServiceImpl implements IArticleService {
         homeResponse.setRetCode(ErrorConstant.SUCCESS);
 
         long end = System.currentTimeMillis();
-        System.out.println("总耗时 ： "+(end-start));
-        System.out.println("获取文章列表耗时 ： "+(end-artStart));
-        System.out.println("记录文章推荐记录耗时 ： "+(sysEnd-sysStart));
+        logger.info("总耗时 ： "+(end-start));
+        logger.info("获取文章列表耗时 ： "+(end-artStart));
+        logger.info("记录文章推荐记录耗时 ： "+(sysEnd-sysStart));
 
         return homeResponse;
     }
@@ -155,7 +159,7 @@ public class ArticleServiceImpl implements IArticleService {
 
         PageInfo result = new PageInfo(articleInfoEntityList);
         Long  total = result.getTotal();
-        System.out.println(" 总条数为： " + total);
+        logger.info(" 总条数为： " + total);
         articleListResponse.setTotal(total);
         //获取100条数据信息
         List<ArticleInfoEntity> resulist = result.getList();
@@ -179,9 +183,9 @@ public class ArticleServiceImpl implements IArticleService {
 
 
         long end = System.currentTimeMillis();
-        System.out.println("总耗时 ： "+(end-start));
-        System.out.println("获取文章列表耗时 ： "+(handTime-artStart));
-        System.out.println("处理文章结果耗时 ： "+(end-handTime));
+        logger.info("总耗时 ： "+(end-start));
+        logger.info("获取文章列表耗时 ： "+(handTime-artStart));
+        logger.info("处理文章结果耗时 ： "+(end-handTime));
         return articleListResponse;
 
 
@@ -197,6 +201,7 @@ public class ArticleServiceImpl implements IArticleService {
      */
     @Override
     public ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP,String userGuid, int pageNum, int pageSize) {
+        logger.info("下拉service......");
         List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
         ArticleListResponse articleListResponse = new ArticleListResponse();
 
@@ -213,7 +218,7 @@ public class ArticleServiceImpl implements IArticleService {
         UserChannelVisitLogEntity userChannelVisitLogEntity = userChannelVisitDao.queryChannelVisitInfo(channelGuid,IP,userGuid);
         Date lastVisitTime = userChannelVisitLogEntity.getLastVisitTime();
         if(null==lastVisitTime){
-            System.out.println("第一次访问......");
+            logger.info("第一次访问......");
             lastVisitTime = new Date();
         }
 

@@ -6,6 +6,8 @@ import com.dragon.fruit.dao.fruit.TokenDao;
 import com.dragon.fruit.entity.po.fruit.TokenEntity;
 import com.dragon.fruit.service.ITokenService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ import java.util.Date;
 
 @Service(value = "tokenService")
 public class TokenServiceImple  implements ITokenService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TokenServiceImple.class);
 
     @Autowired
     TokenDao tokenDao;
@@ -38,7 +42,7 @@ public class TokenServiceImple  implements ITokenService {
         sign = key + uuid+ new Date().getTime();
         String token = DigestUtils.md5Hex(sign);
 
-        System.out.println("......token : " + token);
+        logger.info("......token : " + token);
         LocalDateTime expiredTime =  LocalDateTime.now();
         expiredTime = expiredTime.plusHours(2);
 

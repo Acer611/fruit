@@ -10,6 +10,8 @@ import com.dragon.fruit.service.IArticleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,8 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api/article")
 public class ArticleController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
 
     @Autowired
     private IArticleService articleService;
@@ -44,7 +48,7 @@ public class ArticleController {
                              HttpServletRequest request){
 
         String IP = IPUtils.getIP(request);
-        System.out.println(" IP地址为： "+ IP);
+        logger.info("IP地址为 ： "+ IP);
         HomeResponse homeResponse = articleService.getHomeInfo(userGuid,IP);
 
         return homeResponse;
@@ -68,6 +72,7 @@ public class ArticleController {
                                                           @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
                                                           @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
                                                           HttpServletRequest request){
+        logger.info("上滑动作......");
         String IP = IPUtils.getIP(request);
         Date createDate = new Date();
         if(null != createTime && !createTime.equalsIgnoreCase("null")){
@@ -93,6 +98,7 @@ public class ArticleController {
                                                   @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
                                                   @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
                                                   HttpServletRequest request){
+       logger.info("下拉动作......");
         String IP = IPUtils.getIP(request);
         return  articleService.findNewArticeleByChannelID(channelGuid,IP, userGuid,pageNum,pageSize);
     }
@@ -106,8 +112,8 @@ public class ArticleController {
                                          @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
                                          @ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelId") String channelId,
                                          HttpServletRequest request){
+        logger.info("获取文章详细信息......");
         String IP = IPUtils.getIP(request);
-
         if(null==userGuid||userGuid.equalsIgnoreCase("null")){
             userGuid= UserConstant.DEFAULT_USER;
         }

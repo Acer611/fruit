@@ -5,6 +5,8 @@ import com.dragon.fruit.entity.po.fruit.UserChannelVisitLogEntity;
 import org.apache.ibatis.jdbc.SQL;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @program fruit
  * @description: Toke sql
@@ -43,5 +45,9 @@ public class TokenSQLProvider {
             }
         }}.toString();
     }
+
+
+
+
 
 }

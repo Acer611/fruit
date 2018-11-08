@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.dragon.fruit.dao.fruit.ChannelExposureDao">
+
+
+    <resultMap type="com.dragon.fruit.entity.po.fruit.ChannelExposureLogEntity" id="channelExposureMapper">
+        <id column="ID" property="id"/>
+        <result column="ChannelGuid" property="channelGuid"/>
+        <result column="TitleID" property="titleID"/>
+        <result column="CreateDate" property="createDate"/>
+        <result column="IP" property="IP"/>
+
+    </resultMap>
+
+
+
+    <insert id="insertBatchTXArticle" parameterType="java.util.List">
+        insert into ChannelExposureLog (ChannelGuid, TitleID,CreateDate,IP)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.channelGuid,jdbcType=VARCHAR}, #{item.titleID,jdbcType=VARCHAR},#{item.createDate},#{item.IP,jdbcType=VARCHAR})
+        </foreach>
+
+    </insert>
+
+
+</mapper>

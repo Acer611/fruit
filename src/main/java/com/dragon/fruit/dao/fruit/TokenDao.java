@@ -51,4 +51,17 @@ public interface TokenDao {
      */
     @UpdateProvider(type= TokenSQLProvider.class, method="updateToken")
     public void updateToken(TokenEntity tokenEntity);
+
+    /**
+     * 查询已经过期的Token
+     * @return
+     */
+    @Select("select ID,token,expiredTime,isDel as delFlag from Token where isDel=1")
+    List<TokenEntity> queryHasExpiredToken();
+
+    /**
+     * 批量删除Token
+     * @param tokenEntityList
+     */
+    void batchDelToken(List<TokenEntity> tokenEntityList);
 }

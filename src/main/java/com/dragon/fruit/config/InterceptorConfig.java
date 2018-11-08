@@ -1,5 +1,5 @@
 package com.dragon.fruit.config;
-
+import com.dragon.fruit.dao.fruit.TokenDao;
 import com.dragon.fruit.entity.po.fruit.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,8 @@ import java.io.PrintWriter;
  */
 @Component
 public class InterceptorConfig implements HandlerInterceptor {
-
+    @Autowired
+    private TokenDao tokenDao;
 
 
 
@@ -28,12 +29,12 @@ public class InterceptorConfig implements HandlerInterceptor {
      * 进入controller层之前拦截请求
      * @param httpServletRequest
      * @param httpServletResponse
-     * @param o
+     * @param obj
      * @return
      * @throws Exception
      */
     @Override
-    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object obj) throws Exception {
 
         //TODO 处理拦截的请求
        /* HttpSession session = httpServletRequest.getSession();
@@ -45,9 +46,22 @@ public class InterceptorConfig implements HandlerInterceptor {
             printWriter.write("{code:0,message:\"session is invalid,please login again!\"}");
             return false;
         }*/
-       System.out.println("--------------请求之前的处理操作---------------");
 
-       return true;
+        String accessToken =  httpServletRequest.getHeader("token");
+        if(null==accessToken){
+            PrintWriter printWriter = httpServletResponse.getWriter();
+            printWriter.write("{retCode:403,retMsg:\"Forbidden ,token is invalid!!\"}");
+            return false;
+        }
+        TokenEntity tokenEntity = tokenDao.queryTokenByToken(accessToken);
+        if(null!=tokenEntity){
+            return true;
+        }else{
+            PrintWriter printWriter = httpServletResponse.getWriter();
+            printWriter.write("{retCode:403,retMsg:\"Forbidden,token is invalid!!\"}");
+            return false;
+        }
+
 
     }
 
