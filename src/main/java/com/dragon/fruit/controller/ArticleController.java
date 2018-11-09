@@ -98,7 +98,7 @@ public class ArticleController {
                                                   @RequestParam(name = "pageNum", required = false, defaultValue = "1") int pageNum,
                                                   @RequestParam(name = "pageSize", required = false, defaultValue = "10")int pageSize,
                                                   HttpServletRequest request){
-       logger.info("下拉动作......");
+        logger.info("下拉动作......");
         String IP = IPUtils.getIP(request);
         return  articleService.findNewArticeleByChannelID(channelGuid,IP, userGuid,pageNum,pageSize);
     }

@@ -75,7 +75,7 @@ public class WebAccessAspect {
         HttpServletRequest request = (HttpServletRequest) requestAttributes.resolveReference(RequestAttributes.REFERENCE_REQUEST);
         //如果要获取Session信息的话，可以这样写：
         //HttpSession session = (HttpSession) requestAttributes.resolveReference(RequestAttributes.REFERENCE_SESSION);
-        String token = request.getParameter("token");
+        System.out.println("...............前置通知............");
 
 
         // 记录下请求内容

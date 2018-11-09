@@ -97,14 +97,17 @@ public class ArticleServiceImpl implements IArticleService {
         //获取推荐文章信息 (按时间倒序获取100条数据,排序规则是 时间倒序第一位，Recommend 第二位)
         List<ArticleInfoEntity> articleInfoEntityList = articleDao.queryTJArticleTOP100(channelGuID);
 
+        logger.info("处理同刊占比不能超过30%......");
         //处理同刊占比不能超过30%
         List<ArticleInfoEntity> resultArticleList = this.handleArticleList(articleInfoEntityList);
 
         Long sysStart = System.currentTimeMillis();
+        logger.info("记录推荐的文章到文章推荐记录表......");
         // 记录推荐的文章到文章推荐记录表(异步)
         recordService.recordTXArticle(channelGuID,IP,resultArticleList);
         long sysEnd = System.currentTimeMillis();
 
+        logger.info("记录频道访问记录到频道访问记录表......");
         // 记录频道访问记录到频道访问记录表（异步）
         recordService.recordChannelVist(channelGuID,userGuid,IP);
 
@@ -136,7 +139,7 @@ public class ArticleServiceImpl implements IArticleService {
         long start = System.currentTimeMillis();
         ArticleListResponse articleListResponse = new ArticleListResponse();
         List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
-
+        logger.info("findArticeleByChannelID() 获取指定频道下的文章信息分页 ，按时间倒序排列");
 
         //当前频道是否是推荐频道
         ChannelEntity channelEntity = channleDao.queryChannelInfoByChannelGuid(channelId);
@@ -163,14 +166,16 @@ public class ArticleServiceImpl implements IArticleService {
         articleListResponse.setTotal(total);
         //获取100条数据信息
         List<ArticleInfoEntity> resulist = result.getList();
+        logger.info("处理同刊占比不能超过30%......");
         //处理同刊占比30%
         List<ArticleInfoEntity> articleInfoEntityListResult = this.handleArticleList(resulist);
 
 
         //记录推荐的文章到文章推荐记录表(异步)
+        logger.info("记录推荐的文章到文章推荐记录表......");
         recordService.recordTXArticle(channelId,IP,articleInfoEntityListResult);
 
-
+        logger.info("打散排序.......");
         // 打散排序
         articleInfoEntityListResult = ListRandomUtils.randomList(articleInfoEntityListResult);
         articleListResponse.setArticleInfoEntityList(articleInfoEntityListResult);
@@ -273,8 +278,8 @@ public class ArticleServiceImpl implements IArticleService {
         // 记录推荐的文章到文章推荐记录表(异步)
         recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
 
-
-        //TODO 记录频道访问记录到频道访问记录表（异步）
+        logger.info("记录频道访问记录到频道访问记录表......");
+        // 记录频道访问记录到频道访问记录表（异步）
 
         if(pageNum==1){
             recordService.recordChannelVist(channelGuid,userGuid,IP);
@@ -298,13 +303,16 @@ public class ArticleServiceImpl implements IArticleService {
      */
     @Override
     public ArticleInfoEntity findArticle(String titleId,String IP,String userGuid,String channelID) {
+        logger.info("获取文章详情service......");
         List<ArticleInfoEntity> articleInfoEntityList = articleDao.findArticleByTitleId(titleId);
         ArticleInfoEntity articleInfoEntity =  null;
         if(articleInfoEntityList.size()>0){
             articleInfoEntity =articleInfoEntityList.get(0);
         }
-        // 文章访问记录加1(异步)
+        logger.info("文章访问次数加1(异步)......");
+        // 文章访问次数加1(异步)
         recordService.updateVisitCountAsyn(titleId,articleInfoEntity);
+        logger.info("文章访问记录......");
         //记录文章访问记录(异步记录)
         recordService.recordArticleVisitInfo(IP,userGuid,articleInfoEntity,channelID);
         return articleInfoEntity;

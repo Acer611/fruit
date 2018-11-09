@@ -3,6 +3,7 @@ package com.dragon.fruit.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 /**
@@ -29,5 +30,12 @@ public class WebInterceptionConfig extends WebMvcConfigurationSupport {
         //注册自定义拦截器，添加拦截路径和排除拦截路径
         registry.addInterceptor(interceptorConfig()).addPathPatterns("/api/**").excludePathPatterns("/tools/**");
     }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**").addResourceLocations("classpath:/META-INF/resources/").setCachePeriod(0);
+    }
+
+
 }
 

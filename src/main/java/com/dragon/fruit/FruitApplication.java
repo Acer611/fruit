@@ -14,8 +14,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @Date  2018-10-30
  */
 @EnableSwagger2
-@SpringBootApplication
 @EnableScheduling
+@SpringBootApplication
 public class FruitApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
