@@ -3,6 +3,7 @@ package com.dragon.fruit.service;
 
 import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
 import com.dragon.fruit.entity.vo.response.ArticleListResponse;
+import com.dragon.fruit.entity.vo.response.ChannelResponse;
 import com.dragon.fruit.entity.vo.response.HomeResponse;
 
 import java.util.Date;
@@ -47,5 +48,10 @@ public interface IArticleService {
     ArticleInfoEntity findArticle(String titleId,String IP,String userGuid,String channelID);
 
 
-
+    /**
+     * 获取频道列表
+     * @param userGuid
+     * @return
+     */
+    ChannelResponse queryChannelList(String userGuid);
 }

@@ -1,7 +1,6 @@
 package com.dragon.fruit.dao.fruit;
 
 
-import com.dragon.fruit.dao.fruit.sqlprovider.ArticleVisitSQLProvider;
 import com.dragon.fruit.dao.fruit.sqlprovider.ChannelVisitSQLProvider;
 import com.dragon.fruit.entity.po.fruit.UserChannelVisitLogEntity;
 import org.apache.ibatis.annotations.*;

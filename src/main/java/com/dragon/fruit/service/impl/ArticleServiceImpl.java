@@ -1,11 +1,15 @@
 package com.dragon.fruit.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dragon.fruit.common.constant.ErrorConstant;
 import com.dragon.fruit.common.constant.UserConstant;
 import com.dragon.fruit.common.utils.ListRandomUtils;
 import com.dragon.fruit.dao.fruit.*;
 import com.dragon.fruit.entity.po.fruit.*;
 import com.dragon.fruit.entity.vo.response.ArticleListResponse;
+import com.dragon.fruit.entity.vo.response.ChannelResponse;
 import com.dragon.fruit.entity.vo.response.HomeResponse;
 import com.dragon.fruit.service.IArticleService;
 import com.dragon.fruit.service.IRecordService;
@@ -61,7 +65,7 @@ public class ArticleServiceImpl implements IArticleService {
         logger.info("首页service......");
         HomeResponse homeResponse = new HomeResponse();
         //获取用户信息
-        if(StringUtils.isEmpty(userGuid)) {
+        if(StringUtils.isEmpty(userGuid)|| "null".equalsIgnoreCase(userGuid)) {
             //如果用户为空给一个系统默认的用户ID
             userGuid = UserConstant.DEFAULT_USER;
         }
@@ -74,6 +78,7 @@ public class ArticleServiceImpl implements IArticleService {
         List<APPInfoEntity> appInfoEntityList = appDao.queryAppInfoByUserID(userGuid);
         if(appInfoEntityList.isEmpty()|| appInfoEntityList.size() == 0){
             homeResponse.setRetCode(ErrorConstant.NOAPPCODE);
+            homeResponse.setRetMsg(ErrorConstant.NOAPPCODE_MESSAGE);
             return homeResponse;
         }
         APPInfoEntity appInfoEntity = appInfoEntityList.get(0);
@@ -318,6 +323,34 @@ public class ArticleServiceImpl implements IArticleService {
         return articleInfoEntity;
     }
 
+    /**
+     * 获取频道列表
+     * @param userGuid
+     * @return
+     */
+    @Override
+    public ChannelResponse queryChannelList(String userGuid) {
+
+        ChannelResponse channelResponse = new ChannelResponse();
+        //获取频道信息
+        //1. 获取用户的APP信息
+        List<APPInfoEntity> appInfoEntityList = appDao.queryAppInfoByUserID(userGuid);
+        if(appInfoEntityList.isEmpty()|| appInfoEntityList.size() == 0){
+            channelResponse.setRetCode(ErrorConstant.NOAPPCODE);
+            channelResponse.setRetMsg(ErrorConstant.NOAPPCODE_MESSAGE);
+            return channelResponse;
+        }
+        APPInfoEntity appInfoEntity = appInfoEntityList.get(0);
+        //2. 默认取第一个APP 根据APPID 找到频道信息列表
+        List<ChannelEntity> channelEntityList = channleDao.queryChannelByAppID(appInfoEntity.getAppGuid());
+        if(channelEntityList.isEmpty()|| channelEntityList.size() == 0){
+            channelResponse.setRetCode(ErrorConstant.NOCHANNEL_CODE);
+            channelResponse.setRetMsg(ErrorConstant.NOCHANNEL_MESSAGE);
+            return channelResponse;
+        }
+        channelResponse.setChannelEntityList(channelEntityList);
+        return channelResponse;
+    }
 
 
     /**
@@ -359,7 +392,17 @@ public class ArticleServiceImpl implements IArticleService {
             if(null == articleInfoEntity.getImgs()){
                 String img = "[{\"url\":\"http://img1.qikan.com.cn/qkimages/hush/hush201802/hush2018020455-1-l.jpg\",\"width\":0,\"height\":0}]";
                 articleInfoEntity.setImgs(img);
+            }else{
+                String images = articleInfoEntity.getImgs();
+                JSONArray imageJson = JSON.parseArray(images);
+                List imageList = new ArrayList();
+                for (Object obj:imageJson) {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    imageList.add(jsonObject.get("url"));
+                }
+                articleInfoEntity.setImageList(imageList);
             }
+
 
         }
 

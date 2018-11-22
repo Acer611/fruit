@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 文章实体
@@ -60,6 +61,8 @@ public class ArticleInfoEntity implements Serializable {
 	private String oprator;
     @ApiModelProperty(value = "文章被访问次数")
     private Long visitCount;
+	@ApiModelProperty(value = "封面图列表")
+    private List<String> imageList;
 
 
     public Integer getId() {
@@ -253,6 +256,14 @@ public class ArticleInfoEntity implements Serializable {
     public void setVisitCount(Long visitCount) {
         this.visitCount = visitCount;
     }
+
+	public List<String> getImageList() {
+		return imageList;
+	}
+
+	public void setImageList(List<String> imageList) {
+		this.imageList = imageList;
+	}
 }
 
 

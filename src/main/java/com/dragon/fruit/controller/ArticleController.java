@@ -5,6 +5,7 @@ import com.dragon.fruit.common.utils.DateUtils;
 import com.dragon.fruit.common.utils.IPUtils;
 import com.dragon.fruit.entity.po.fruit.ArticleInfoEntity;
 import com.dragon.fruit.entity.vo.response.ArticleListResponse;
+import com.dragon.fruit.entity.vo.response.ChannelResponse;
 import com.dragon.fruit.entity.vo.response.HomeResponse;
 import com.dragon.fruit.service.IArticleService;
 import io.swagger.annotations.Api;
@@ -121,6 +122,25 @@ public class ArticleController {
     }
 
 
-
+    /**
+     * 获取频道列表接口
+     * @param userGuid
+     * @param request
+     * @return
+     */
+    @ApiOperation(value = "获取频道列表")
+    @ResponseBody
+    //@GetMapping("/getChannel")
+    @RequestMapping(value = "/getChannel",method = RequestMethod.OPTIONS)
+    public ChannelResponse queryChannelList(@ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
+                                            HttpServletRequest request){
+        logger.info("获取频道列表信息......");
+        String IP = IPUtils.getIP(request);
+        if(null==userGuid||userGuid.equalsIgnoreCase("null")){
+            userGuid= UserConstant.DEFAULT_USER;
+        }
+        //TODO
+        return articleService.queryChannelList(userGuid);
+    }
 
 }

@@ -1,11 +1,8 @@
 package com.dragon.fruit.dao.fruit.sqlprovider;
 
 import com.dragon.fruit.entity.po.fruit.TokenEntity;
-import com.dragon.fruit.entity.po.fruit.UserChannelVisitLogEntity;
 import org.apache.ibatis.jdbc.SQL;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 /**
  * @program fruit

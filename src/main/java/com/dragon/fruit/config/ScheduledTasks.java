@@ -39,7 +39,7 @@ public class ScheduledTasks {
     /**
      * 定时删除过期Token的定时任务 （假删除）
      */
-    @Scheduled(fixedRate = 60000) //上一次开始执行时间点之后1分钟后再执行
+    @Scheduled(fixedDelay = 60000) //上一次开始执行时间点之后1分钟后再执行
     public void removeExpiredToken(){
         logger.info("删除过期token的定时任务开始...");
         List<TokenEntity> tokenEntityList = tokenDao.queryExpiredToken(new Date());

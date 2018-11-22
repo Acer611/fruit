@@ -2,7 +2,6 @@ package com.dragon.fruit.dao.fruit;
 
 
 import com.dragon.fruit.dao.fruit.sqlprovider.ChannelSQLProvider;
-import com.dragon.fruit.dao.fruit.sqlprovider.ChannelVisitSQLProvider;
 import com.dragon.fruit.entity.po.fruit.ChannelEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
