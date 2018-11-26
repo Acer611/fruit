@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +28,7 @@ import java.util.Date;
  */
 
 @Api(tags = "果实频道文章接口")
-@RestController
+@Controller
 @RequestMapping("/api/article")
 public class ArticleController {
 
@@ -131,7 +133,7 @@ public class ArticleController {
     @ApiOperation(value = "获取频道列表")
     @ResponseBody
     //@GetMapping("/getChannel")
-    @RequestMapping(value = "/getChannel",method = RequestMethod.OPTIONS)
+    @RequestMapping(value = "/getChannel",method = RequestMethod.GET)
     public ChannelResponse queryChannelList(@ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
                                             HttpServletRequest request){
         logger.info("获取频道列表信息......");
@@ -141,6 +143,36 @@ public class ArticleController {
         }
         //TODO
         return articleService.queryChannelList(userGuid);
+    }
+
+
+    /**
+     * 首页跳转页面
+     * @param request
+     * @param model
+     * @return
+     */
+    @ApiOperation(value = "跳转首页")
+    @RequestMapping(value="/toHome",method = RequestMethod.GET)
+    public String toHomePage(HttpServletRequest request, Model model) {
+        System.out.println("................");
+        return  "homePage";
+    }
+
+    @ApiOperation(value = "跳转文章详情也")
+    @RequestMapping(value="/toArticleInfo",method = RequestMethod.GET)
+    public String toArticleInfo(@ApiParam(value = "文章ID", required = true) @RequestParam(name = "titleId") String titleId,
+                                @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,
+                                @ApiParam(value = "频道ID", required = true) @RequestParam(name = "channelId") String channelId,
+                                HttpServletRequest request, Model model){
+        String IP = IPUtils.getIP(request);
+        if(null==userGuid||userGuid.equalsIgnoreCase("null")){
+            userGuid= UserConstant.DEFAULT_USER;
+        }
+        ArticleInfoEntity articleInfoEntity =  articleService.findArticle(titleId,IP,userGuid,channelId);
+        model.addAttribute("articleInfo",articleInfoEntity);
+        System.out.println("toArticleDetailInfo................");
+        return  "article";
     }
 
 }

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>龙源果实</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="https://cdn.staticfile.org/vue/2.5.17/vue.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue-resource/1.5.1/vue-resource.js"></script>
+
+</head>
+<body>
+
+<div id="dynamic-component-tab" class="header-body">
+    <!--频道展示-->
+    <div class="header">
+        <div class="scrollx mescroll-touch-x">
+            <div class="scrollx-content">
+                <ul class="nav">
+                    <li  class ="active" v-for="tab in channelList"
+                    v-bind:key="tab"
+                    v-bind:value="tab.channelGuid">{{ tab.channelName }}</li>
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+    <p id="downloadTip" class="download-tip">更新了10条内容</p>
+
+    <!--文章列表展示展示 -->
+    <div class="mescroll mescroll-bar">
+        <ul class ="data-list">
+            <li v-for="article in articleList"
+                v-bind:value="article.titleID"
+                @click = "getArticleDetail()">
+               <!--<a href="http://localhost:9999/fruit/api/article/toArticleInfo?userGuid=null&channelId=11111111111&titleId"+ {{article.title}} target="_blank">-->
+                <div class="box">
+                    <div class ="article-content" >
+                       <!-- 封面图取三张-->
+                        <div class="picture" v-for="image in article.imageList.slice(0,3)">
+                            <img class="picok" :src="image" alt="">
+                        </div>
+                        <div class="title">
+                            <div class="title1">
+                                <div class ="title2">
+                                    {{article.title}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="source">{{article.magazineName}} </div>
+                    </div>
+                </div>
+               <!--</a>-->
+            </li>
+        </ul>
+
+    </div>
+
+</div>
+
+
+<div>
+
+</div>
+<script>
+    /*动态组件*/
+    Vue.component('tab-channel', {
+        template: '<div v-for="channel in channelList" v-bind:value="channel.channelGuid">{{channel.channelName}}}</div>'
+    })
+    new Vue({
+        el: '#dynamic-component-tab',
+        data: {
+            channelList: [],
+            articleList:[],
+        },
+
+        created: function(){
+            this.getChannelList()              //定义方法
+        },
+        methods:{
+            getChannelList:function(){
+                var that = this;
+                that.$http({           //调用接口
+                    method:'GET',
+                    url:'http://localhost:9999/fruit/api/article/home?userGuid=null'  //this指data
+                }).then(function(response){  //接口返回数据
+                    this.channelList=response.data.channelEntityList;
+                    this.articleList=response.data.articleInfoEntityList;
+                }
+                ,function(error){
+                })
+            }
+        }
+    })
+
+    new Vue({
+        methods:{
+            func (){
+                this.$router.push({name: '/templates/articleInfo',params:{ titleId:'1'}});
+            }
+        }
+    })
+</script>
+
+<script>
+
+</script>
+
+
+<style>
+
+    .scrollx {
+        height: 40px;
+        overflow: hidden;
+    }
+    * {
+        border: 0;
+        margin: 0;
+        padding: 0;
+    }
+    .header {
+        z-index: 9990;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        line-height: 16px;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        background-color: #fff;
+    }
+    .scrollx-content {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    .nav {
+        padding: 0 8px;
+    }
+    li, ul {
+        list-style: none;
+    }
+    .nav li {
+        display: inline-block;
+        padding: 12px 8px 10px;
+        margin-bottom: 20px;
+        vertical-align: middle;
+    }
+    .active {
+        border-bottom: 0px solid #0080ff;
+    }
+
+
+
+    .mescroll {
+        position: fixed;
+        top: 40px;
+        bottom: 1px;
+        height: auto;
+    }
+    .mescroll {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+    }
+    ul, menu, dir {
+        display: block;
+        list-style-type: disc;
+        /*margin-block-start: 1em;*/
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        padding-inline-start: 40px;
+    }
+    .box {
+        width: 100%;
+        border-top: 5px solid #eee;
+        overflow: hidden;
+    }
+    .article-content {
+        height: auto;
+        padding: 10px 0px;
+        width: calc( 100% - 20px );
+        margin: 0 auto;
+    }
+    .article-content .picture {
+        height: 105px;
+        width: 140px;
+        float: right;
+        margin-left: 10px;
+        overflow: hidden;
+    }
+
+    .article-content .title {
+        height: 66px;
+        margin: 0 0 7px;
+        display: table;
+        overflow: hidden;
+        _position: relative;
+        position: relative;
+    }
+
+    .source {
+        overflow: hidden;
+        font-size: 12px;
+        line-height: 32px;
+        color: #999;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .picok {
+        width: 100%;
+        height: 100%;
+        background-size: cover!important;
+    }
+    .article-content .title1{
+        vertical-align: middle;
+        display: table-cell;
+        _position: absolute;
+        _top: 50%;
+    }
+    .article-content .title2 {
+        _position: relative;
+        _top: -50%;
+        line-height: 22px;
+        font-size: 16px;
+        color: #000;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        font-weight: 400;
+    }
+    .download-tip {
+        z-index: 990;
+        position: fixed;
+        top: 0px;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        line-height: 30px;
+        font-size: 14px;
+        text-align: center;
+        /*background-color: rgba(0,128,255,.7);*/
+        color: white;
+        -webkit-transition: top 300ms;
+        transition: top 300ms;
+    }
+    p {
+        display: block;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+    }
+</style>
+</body>
+</html>
