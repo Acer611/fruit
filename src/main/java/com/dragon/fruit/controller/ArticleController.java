@@ -78,8 +78,16 @@ public class ArticleController {
         logger.info("上滑动作......");
         String IP = IPUtils.getIP(request);
         Date createDate = new Date();
+        if(pageNum == 1){
+            createTime = null;
+        }
         if(null != createTime && !createTime.equalsIgnoreCase("null")){
-            createDate = DateUtils.stringToDate(createTime);
+            if(createTime.length()==13){
+                createDate = DateUtils.stringToDate(DateUtils.timeStamp2Date(createTime));
+            }else{
+                createDate = DateUtils.stringToDate(createTime);
+            }
+
         }
         return  articleService.findArticeleByChannelID(channelGuid,createDate,IP,userGuid,pageNum,pageSize);
     }
@@ -159,7 +167,7 @@ public class ArticleController {
         return  "homePage";
     }
 
-    @ApiOperation(value = "跳转文章详情也")
+    @ApiOperation(value = "跳转文章详情页")
     @RequestMapping(value="/toArticleInfo",method = RequestMethod.GET)
     public String toArticleInfo(@ApiParam(value = "文章ID", required = true) @RequestParam(name = "titleId") String titleId,
                                 @ApiParam(value = "用户ID", required = true) @RequestParam(name = "userGuid") String userGuid,

@@ -34,8 +34,11 @@ public class DateUtils {
             return "";
         }
 
+
+
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FULL_FORMAT);
-        return sdf.format(new Date(Long.valueOf(seconds + "000")));
+        String date = sdf.format(new Date(Long.parseLong(seconds)));
+        return date;
     }
 
 
@@ -83,21 +86,10 @@ public class DateUtils {
     }
 
     public static void main(String[] args) {
-        String DateStr = "Tue Oct 09 13:40:17 CST 2018";
+       String l = "1528777561147";
 
-        String date = "Thu Aug 27 18:05:49 CST 2015";
-
-        String str = "2015-08-27 18:05:49";
-
-        Date dateTime = stringToDate(str);
-
-        long s = dateTime.getTime();
-
-        System.out.println(timeStamp2Date(s+""));
-        System.out.println(dateTime);
-        System.out.println(CST2Date(date));
-
-
+        String date = timeStamp2Date(l);
+        System.out.println("....."+date);
 
 
     }

@@ -20,6 +20,12 @@ public class ArticleListResponse  extends  CommonResponse{
     @ApiModelProperty(value = "总条数")
     private Long total;
 
+    @ApiModelProperty(value = "是否是最后一页")
+    private Boolean isLastPage;
+
+    @ApiModelProperty(value = "当前频道GUID")
+    private String currChannelGuid;
+
     public List<ArticleInfoEntity> getArticleInfoEntityList() {
         return articleInfoEntityList;
     }
@@ -34,5 +40,21 @@ public class ArticleListResponse  extends  CommonResponse{
 
     public void setTotal(Long total) {
         this.total = total;
+    }
+
+    public Boolean getLastPage() {
+        return isLastPage;
+    }
+
+    public void setLastPage(Boolean lastPage) {
+        isLastPage = lastPage;
+    }
+
+    public String getCurrChannelGuid() {
+        return currChannelGuid;
+    }
+
+    public void setCurrChannelGuid(String currChannelGuid) {
+        this.currChannelGuid = currChannelGuid;
     }
 }

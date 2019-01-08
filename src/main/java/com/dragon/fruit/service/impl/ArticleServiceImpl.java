@@ -98,6 +98,7 @@ public class ArticleServiceImpl implements IArticleService {
                 channelGuID = channelEntity.getChannelGuid();
             }
         }
+        homeResponse.setCurrChannelGuid(channelGuID);
         long artStart = System.currentTimeMillis();
         //获取推荐文章信息 (按时间倒序获取100条数据,排序规则是 时间倒序第一位，Recommend 第二位)
         List<ArticleInfoEntity> articleInfoEntityList = articleDao.queryTJArticleTOP100(channelGuID);
@@ -109,7 +110,10 @@ public class ArticleServiceImpl implements IArticleService {
         Long sysStart = System.currentTimeMillis();
         logger.info("记录推荐的文章到文章推荐记录表......");
         // 记录推荐的文章到文章推荐记录表(异步)
-        recordService.recordTXArticle(channelGuID,IP,resultArticleList);
+        if(resultArticleList.size()>0){
+            recordService.recordTXArticle(channelGuID,IP,resultArticleList);
+        }
+
         long sysEnd = System.currentTimeMillis();
 
         logger.info("记录频道访问记录到频道访问记录表......");
@@ -157,16 +161,20 @@ public class ArticleServiceImpl implements IArticleService {
         PageHelper.startPage(pageNum, 100);
         if(null!=channelEntity.getRecommand() && channelEntity.getRecommand()){
             //获取推荐频道数据， 时间小于createTime
-            articleInfoEntityList = articleDao.queryTJArticleByCreateDate(channelId,createTime);
+            articleInfoEntityList = articleDao.queryTJArticleByCreateDate(userGuid,createTime);
         }else{
             //获取当前频道数据，时间小于createTime
             articleInfoEntityList = articleDao.findArticeleByChannelIDAndCreateDate(channelId,createTime);
         }
 
         long handTime = System.currentTimeMillis();
+        if(articleInfoEntityList.size()<1){
+            articleInfoEntityList = articleDao.queryTJArticle(channelId);
+        }
 
         PageInfo result = new PageInfo(articleInfoEntityList);
         Long  total = result.getTotal();
+        articleListResponse.setTotal(total);
         logger.info(" 总条数为： " + total);
         articleListResponse.setTotal(total);
         //获取100条数据信息
@@ -175,10 +183,12 @@ public class ArticleServiceImpl implements IArticleService {
         //处理同刊占比30%
         List<ArticleInfoEntity> articleInfoEntityListResult = this.handleArticleList(resulist);
 
-
         //记录推荐的文章到文章推荐记录表(异步)
         logger.info("记录推荐的文章到文章推荐记录表......");
-        recordService.recordTXArticle(channelId,IP,articleInfoEntityListResult);
+        if(articleInfoEntityListResult.size()>0){
+            recordService.recordTXArticle(channelId,IP,articleInfoEntityListResult);
+        }
+
 
         logger.info("打散排序.......");
         // 打散排序
@@ -196,6 +206,7 @@ public class ArticleServiceImpl implements IArticleService {
         logger.info("总耗时 ： "+(end-start));
         logger.info("获取文章列表耗时 ： "+(handTime-artStart));
         logger.info("处理文章结果耗时 ： "+(end-handTime));
+        articleListResponse.setCurrChannelGuid(channelId);
         return articleListResponse;
 
 
@@ -212,6 +223,7 @@ public class ArticleServiceImpl implements IArticleService {
     @Override
     public ArticleListResponse findNewArticeleByChannelID(String channelGuid, String IP,String userGuid, int pageNum, int pageSize) {
         logger.info("下拉service......");
+        long start = System.currentTimeMillis();
         List<ArticleInfoEntity> articleInfoEntityList = new ArrayList<>();
         ArticleListResponse articleListResponse = new ArticleListResponse();
 
@@ -222,15 +234,20 @@ public class ArticleServiceImpl implements IArticleService {
             articleListResponse.setRetMsg(ErrorConstant.NOCHANNEL_MESSAGE);
             return articleListResponse;
         }
-
+        long channelTime = System.currentTimeMillis();
+        System.out.println("获取频道耗时： " + (channelTime-start));
 
         //获取用户进入频道或最近拉新数据的时间
         UserChannelVisitLogEntity userChannelVisitLogEntity = userChannelVisitDao.queryChannelVisitInfo(channelGuid,IP,userGuid);
-        Date lastVisitTime = userChannelVisitLogEntity.getLastVisitTime();
-        if(null==lastVisitTime){
-            logger.info("第一次访问......");
-            lastVisitTime = new Date();
+        Date lastVisitTime = new Date();
+        if(null!=userChannelVisitLogEntity){
+            lastVisitTime = userChannelVisitLogEntity.getLastVisitTime();
+            if(null==lastVisitTime){
+                logger.info("第一次访问......");
+
+            }
         }
+
 
         List<ArticleInfoEntity> articleInfoEntityListTop100 = new ArrayList<>();
         if(null!=channelEntity.getRecommand() && channelEntity.getRecommand()){
@@ -280,8 +297,13 @@ public class ArticleServiceImpl implements IArticleService {
         }
 
 
+        articleInfoEntityList = handleImages(articleInfoEntityList);
+
         // 记录推荐的文章到文章推荐记录表(异步)
-        recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
+        if(articleInfoEntityList.size()>0){
+            recordService.recordTXArticle(channelGuid,IP,articleInfoEntityList);
+        }
+
 
         logger.info("记录频道访问记录到频道访问记录表......");
         // 记录频道访问记录到频道访问记录表（异步）
@@ -295,6 +317,13 @@ public class ArticleServiceImpl implements IArticleService {
         articleListResponse.setArticleInfoEntityList(articleInfoEntityList);
         articleListResponse.setRetCode(0);
 
+        long endTime = System.currentTimeMillis();
+        System.out.println("总耗时："+ (endTime-start));
+        if(articleInfoEntityList.size()>0){
+            articleListResponse.setLastPage(false);
+        }else{
+            articleListResponse.setLastPage(true);
+        }
         return articleListResponse;
 
     }
@@ -388,10 +417,32 @@ public class ArticleServiceImpl implements IArticleService {
 
         //处理没有图片的问题 默认给的是一个404找不到的图片， 可以设置默认图片后期
         //处理时间格式问题
+
+        articleInfoEntityList = handleImages(articleInfoEntityList);
+        return articleInfoEntityList;
+    }
+
+
+    /**
+     * 处理图片问题
+     * @param articleInfoEntities
+     * @return
+     */
+    public List<ArticleInfoEntity> handleImages(List<ArticleInfoEntity> articleInfoEntities){
+        List<ArticleInfoEntity> articleInfoEntityList = articleInfoEntities;
+        //处理没有图片的问题 默认给的是一个404找不到的图片， 可以设置默认图片后期
+        //处理时间格式问题
         for (ArticleInfoEntity articleInfoEntity:articleInfoEntityList) {
             if(null == articleInfoEntity.getImgs()){
                 String img = "[{\"url\":\"http://img1.qikan.com.cn/qkimages/hush/hush201802/hush2018020455-1-l.jpg\",\"width\":0,\"height\":0}]";
                 articleInfoEntity.setImgs(img);
+                JSONArray imageJson = JSON.parseArray(img);
+                List imageList = new ArrayList();
+                for (Object obj:imageJson) {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    imageList.add(jsonObject.get("url"));
+                }
+                articleInfoEntity.setImageList(imageList);
             }else{
                 String images = articleInfoEntity.getImgs();
                 JSONArray imageJson = JSON.parseArray(images);
@@ -405,10 +456,8 @@ public class ArticleServiceImpl implements IArticleService {
 
 
         }
-
         return articleInfoEntityList;
     }
-
     public static void main(String[] args) {
         int i = 11/10;
         System.out.println(i);

@@ -24,6 +24,8 @@ public class HomeResponse extends  CommonResponse{
 
     @ApiModelProperty(value = "文章的集合")
     private List<ArticleInfoEntity> articleInfoEntityList;
+    @ApiModelProperty(value = "当前频道GUID")
+    private String currChannelGuid;
 
     public UserInfoEntity getUserInfoEntity() {
         return userInfoEntity;
@@ -47,5 +49,13 @@ public class HomeResponse extends  CommonResponse{
 
     public void setArticleInfoEntityList(List<ArticleInfoEntity> articleInfoEntityList) {
         this.articleInfoEntityList = articleInfoEntityList;
+    }
+
+    public String getCurrChannelGuid() {
+        return currChannelGuid;
+    }
+
+    public void setCurrChannelGuid(String currChannelGuid) {
+        this.currChannelGuid = currChannelGuid;
     }
 }
