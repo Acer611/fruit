@@ -196,7 +196,7 @@ public class ArticleServiceImpl implements IArticleService {
         articleListResponse.setArticleInfoEntityList(articleInfoEntityListResult);
         articleListResponse.setRetCode(ErrorConstant.SUCCESS);
 
-        //TODO 记录频道访问记录到频道访问记录表（异步）
+        // 记录频道访问记录到频道访问记录表（异步）
         if(pageNum==1){
             recordService.recordChannelVist(channelId,userGuid,IP);
         }

@@ -1,7 +1,9 @@
 package com.dragon.fruit.config;
+import com.alibaba.fastjson.JSONObject;
 import com.dragon.fruit.dao.fruit.TokenDao;
 import com.dragon.fruit.entity.po.fruit.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -21,7 +23,8 @@ public class InterceptorConfig implements HandlerInterceptor {
     @Autowired
     private TokenDao tokenDao;
 
-
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 进入controller层之前拦截请求
@@ -45,20 +48,35 @@ public class InterceptorConfig implements HandlerInterceptor {
             return false;
         }*/
 
-        String accessToken =  httpServletRequest.getHeader("token");
-        if(null==accessToken){
+        httpServletResponse.setCharacterEncoding("UTF-8");
+        httpServletResponse.setContentType("application/json; charset=utf-8");
+        String token =  httpServletRequest.getHeader("token");
+        if(null==token){
             PrintWriter printWriter = httpServletResponse.getWriter();
-            printWriter.write("{retCode:403,retMsg:\"Forbidden ,token is invalid!!\"}");
+            JSONObject res = new JSONObject();
+            res.put("success","false");
+            res.put("msg","您没有登录，请登录!!");
+            res.put("code","5001");
+            printWriter.append(res.toString());
+
+            //printWriter.write("{retCode:5001,retMsg:\"You are offline. Please login again!!\"}");
             return false;
         }
-        TokenEntity tokenEntity = tokenDao.queryTokenByToken(accessToken);
-        if(null!=tokenEntity){
+
+        String userJson = stringRedisTemplate.opsForValue().get("User_GetUserByToken:" + token);
+        //TokenEntity tokenEntity = tokenDao.queryTokenByToken(token);
+        if(null!=userJson){
             return true;
         }else{
             PrintWriter printWriter = httpServletResponse.getWriter();
-            printWriter.write("{retCode:403,retMsg:\"Forbidden,token is invalid!!\"}");
+            JSONObject res = new JSONObject();
+            res.put("success","false");
+            res.put("msg","您已下线，请重新登录!!");
+            res.put("code","5002");
+            printWriter.append(res.toString());
             return false;
         }
+     /*  return  true;*/
 
 
     }

@@ -31,8 +31,8 @@ public class Swagger2Config {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("果实接口API")
-                .description("果实接口API")
+                .title("VPN接口API")
+                .description("VPN接口API")
                 .version("1.0")
                 .build();
     }

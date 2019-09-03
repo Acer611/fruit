@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  *
  */
 
-@Component
+/*@Component
 @Order(1)
 public class LeanCloudConfig  implements ApplicationRunner {
 
@@ -59,4 +59,4 @@ public class LeanCloudConfig  implements ApplicationRunner {
         AVOSCloud.setDebugLogEnabled(true);
 
     }
-}
+}*/

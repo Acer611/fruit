@@ -1,3 +1,4 @@
+/*
 package com.dragon.fruit.controller;
 
 import com.dragon.fruit.common.constant.UserConstant;
@@ -22,10 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 
+*/
 /**
  * 果实访问处理的controller
  * Created by Gaofei on 2018/10/30
- */
+ *//*
+
 
 @Api(tags = "果实频道文章接口")
 @Controller
@@ -38,12 +41,14 @@ public class ArticleController {
     private IArticleService articleService;
 
 
-    /**
+    */
+/**
      * 首页
      * @param userGuid
      * @param request
      * @return
-     */
+     *//*
+
     @ApiOperation(value = "首页")
     @ResponseBody
     @GetMapping("/home")
@@ -59,13 +64,15 @@ public class ArticleController {
 
 
 
-    /**
+    */
+/**
      * 查询特定频道下的文章信息列表（上滑动作）
      * @param channelGuid 频道的ID
      * @param pageNum
      * @param pageSize
      * @return
-     */
+     *//*
+
     @ApiOperation(value = "分页查询特定频道文章信息（上滑动作）")
     @ResponseBody
     @GetMapping("/findArticleUpglide")
@@ -94,13 +101,15 @@ public class ArticleController {
 
 
 
-    /**
+    */
+/**
      * 查询特定频道下的文章信息列表（下拉动作）
      * @param channelGuid 频道ID
      * @param pageNum
      * @param pageSize
      * @return
-     */
+     *//*
+
     @ApiOperation(value = "获取特定频道下最新文章信息（下拉动作）")
     @ResponseBody
     @GetMapping("/findNewArticleList")
@@ -132,12 +141,14 @@ public class ArticleController {
     }
 
 
-    /**
+    */
+/**
      * 获取频道列表接口
      * @param userGuid
      * @param request
      * @return
-     */
+     *//*
+
     @ApiOperation(value = "获取频道列表")
     @ResponseBody
     //@GetMapping("/getChannel")
@@ -149,17 +160,19 @@ public class ArticleController {
         if(null==userGuid||userGuid.equalsIgnoreCase("null")){
             userGuid= UserConstant.DEFAULT_USER;
         }
-        //TODO
+        //
         return articleService.queryChannelList(userGuid);
     }
 
 
-    /**
+    */
+/**
      * 首页跳转页面
      * @param request
      * @param model
      * @return
-     */
+     *//*
+
     @ApiOperation(value = "跳转首页")
     @RequestMapping(value="/toHome",method = RequestMethod.GET)
     public String toHomePage(HttpServletRequest request, Model model) {
@@ -184,3 +197,4 @@ public class ArticleController {
     }
 
 }
+*/

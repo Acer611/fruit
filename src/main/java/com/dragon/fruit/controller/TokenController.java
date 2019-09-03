@@ -1,3 +1,4 @@
+/*
 package com.dragon.fruit.controller;
 
 
@@ -14,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+*/
 /**
  * @program Fruit
  * @description: Toke的接口
  * @author: Gaofei
  * @create: 2018/11/07 14:58
- */
+ *//*
+
 @Api(tags = "果实频接口获取Token接口")
 @RestController
 @RequestMapping("/tools/token")
@@ -30,10 +33,12 @@ public class TokenController {
     @Autowired
     ITokenService tokenService;
 
-    /**
+    */
+/**
      *获取AccessToken token有效期两小时，过期请重新重新获取
      * @return
-     */
+     *//*
+
 
     @ApiOperation(value = "获取AccessToken")
     @ResponseBody
@@ -54,3 +59,4 @@ public class TokenController {
 
 
 }
+*/

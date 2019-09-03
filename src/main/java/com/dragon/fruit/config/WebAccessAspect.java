@@ -40,7 +40,7 @@ public class WebAccessAspect {
 
    // 在Spring 2.0中，Pointcut的定义包括两个部分：Pointcut表示式(expression)和Pointcut签名(signature)
     //Pointcut表示式
-    @Pointcut("execution(public * com.style.slack.controller..*.*(..))")  //表示匹配com.style.slack.controller 包及其子包下的所有的公有方法
+    @Pointcut("execution(public * com.dragon.fruit.controller..*.*(..))")  //表示匹配com.style.slack.controller 包及其子包下的所有的公有方法
     //Point签名
     public void webLog(){}
 

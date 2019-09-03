@@ -138,7 +138,6 @@ public class EncryptionUtils {
 
     public static void main(String[] args) {
         String md5Str =  DigestUtils.md5Hex("asdfadfafafafafa");
-        // TODO Auto-generated method stub
         System.out.println(encryptionMD5("asdfadfafafafafa"));
         System.out.println("..............");
         System.out.println(md5Str);

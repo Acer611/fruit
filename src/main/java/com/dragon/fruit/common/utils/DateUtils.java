@@ -3,6 +3,10 @@ package com.dragon.fruit.common.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Locale;
 
@@ -84,6 +88,32 @@ public class DateUtils {
         return date;
 
     }
+
+    /**
+     * 将 Date 转换成LocalDateTime
+     * atZone()方法返回在指定时区从此Instant生成的ZonedDateTime。
+     * @param date
+     * @return
+     */
+    public static LocalDateTime dateToLocalDateTime(Date date){
+        Instant instant = date.toInstant();
+        ZoneId zoneId = ZoneId.systemDefault();
+        return instant.atZone(zoneId).toLocalDateTime();
+    }
+
+
+
+    /**
+     * 将LocalDateTime 转换成 Date
+     * @param localDateTime
+     * @return
+     */
+    public static Date localDateTimeToDate(LocalDateTime localDateTime){
+        ZoneId zoneId = ZoneId.systemDefault();
+        ZonedDateTime zdt = localDateTime.atZone(zoneId);
+        return Date.from(zdt.toInstant());
+    }
+
 
     public static void main(String[] args) {
        String l = "1528777561147";
