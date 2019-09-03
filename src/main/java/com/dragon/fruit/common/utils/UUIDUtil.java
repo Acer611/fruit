@@ -1,6 +1,5 @@
 package com.dragon.fruit.common.utils;
 
-import com.dragon.fruit.entity.po.vmJsonConfig.VmJsonConfig;
 
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -84,7 +83,6 @@ public class UUIDUtil {
         int result1 = date.get(weekFields.weekOfYear());
         int offset = date.getDayOfWeek().getValue();
 
-        VmJsonConfig vmJsonConfig = new VmJsonConfig();
 
         System.out.println("orderID ：" + getOrderID());
         System.out.println("orderID ：" + getOrderIDWithTime());

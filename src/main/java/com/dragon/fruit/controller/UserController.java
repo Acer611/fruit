@@ -40,6 +40,20 @@ public class UserController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+
+    /**
+     * 心跳捷库
+     *
+     * @return
+     */
+    @ApiOperation(value = "心跳接口")
+    @ResponseBody
+    @RequestMapping(value = "/hit", method = RequestMethod.GET)
+    public String hit() {
+
+        return "ok";
+    }
+
     /**
      * 发送手机短信验证码
      *
@@ -114,8 +128,7 @@ public class UserController {
     @ApiOperation(value = "校验手机短信验证码")
     @ResponseBody
     @RequestMapping(value = "/checkCode", method = RequestMethod.POST)
-    public Map checkVerificationCode(
-                                     @RequestParam(name = "phone") String phone,
+    public Map checkVerificationCode(@RequestParam(name = "phone") String phone,
                                      @RequestParam(name = "checkCode") String checkCode) {
 
         //根据手机号查询验证码的msgID
@@ -131,8 +144,7 @@ public class UserController {
     @ApiOperation(value = "注册")
     @ResponseBody
     @RequestMapping(value = "register", method = RequestMethod.POST)
-    public Map register(
-            @RequestHeader(required = false, value = "token") String token, @RequestBody User user) {
+    public Map register(String token, @RequestBody User user) {
 
 
         String result = userService.saveRegisterUser(user);
@@ -195,8 +207,7 @@ public class UserController {
     @ApiOperation(value = "生成用户邀请码")
     @ResponseBody
     @RequestMapping(value = "/generateUserAskCode", method = RequestMethod.GET)
-    public Map generateUserAskCode(
-                                   @RequestParam(name = "userID") Long userID) {
+    public Map generateUserAskCode(@RequestParam(name = "userID") Long userID) {
 
         Map<String, Object> map = userService.generateUserAskCode(userID);
 

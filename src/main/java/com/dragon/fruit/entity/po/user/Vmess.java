@@ -49,6 +49,8 @@ public class Vmess implements Serializable {
     private String country;
     @ApiModelProperty(value = "图标")
     private String icon;
+    @ApiModelProperty(value = "版本号")
+    private String configVersion;
 
     public Long getId() {
         return id;
@@ -200,5 +202,13 @@ public class Vmess implements Serializable {
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public String getConfigVersion() {
+        return configVersion;
+    }
+
+    public void setConfigVersion(String configVersion) {
+        this.configVersion = configVersion;
     }
 }

@@ -167,7 +167,7 @@ public class VmessServiceImpl implements IVmessService {
 
         resultMap.put("isVip",vmess.getIsVip()==null?0:vmess.getIsVip());
         resultMap.put("uuid",vmess.getUUID()==null?"":vmess.getUUID());
-
+        resultMap.put("configVersion",vmess.getConfigVersion()==null?"":vmess.getConfigVersion());
 
         return resultMap;
     }
